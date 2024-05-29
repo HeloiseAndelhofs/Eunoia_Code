@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userService = require('../services/userService');
 const loginValidators = require('../validators/login.validators');
+const registerValidator = require('../validators/register.validators')
 
 const userController = {
 
@@ -26,8 +27,26 @@ const userController = {
 
     register : async (req, res) => {
 
+        try {
+            const validateReq = await registerValidator.validate(req.body)
+    
+            if (validateReq.error) {
+                return res.status(400).json({message: validateReq.error})
+            }
+            const { username, email, password, birthday, description } = validateReq;
+            const hashedPassword = bcrypt.hashSync(password, 10)
 
-        
+            const newUser = await userService.register({ username, email, hashedPassword, birthday, description })
+            if (!newUser) {
+                res.status(500).json({message : "Sorry sorry, erreur serveur"})
+            }
+            return res.status(201).json({message : "L'utilisateur a bien été enregistré."})
+
+        } catch (error) {
+            console.error(error);
+            //possiblement renvoyé un status erreur et un message
+        }
+
     },
 
     getUserByName : async (req, res) => {
