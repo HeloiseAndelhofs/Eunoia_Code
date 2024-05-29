@@ -25,28 +25,24 @@ const userController = {
 
     // },
 
-    register : async (req, res) => {
-
+    register: async (req, res) => {
         try {
-            const validateReq = await registerValidator.validate(req.body)
-    
-            if (validateReq.error) {
-                return res.status(400).json({message: validateReq.error})
-            }
-            const { username, email, password, birthday, description } = validateReq;
-            const hashedPassword = bcrypt.hashSync(password, 10)
+            const { username, email, password, birthday, description, avatar_url, preferences } = req.body;
 
-            const newUser = await userService.register({ username, email, hashedPassword, birthday, description })
-            if (!newUser) {
-                res.status(500).json({message : "Sorry sorry, erreur serveur"})
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url });
+
+            if (preferences && preferences.length > 0) {
+                await userService.addUserPreferences(userId, preferences);
             }
-            return res.status(201).json({message : "L'utilisateur a bien été enregistré."})
+
+            res.status(201).json({ message: "User registered successfully." });
 
         } catch (error) {
             console.error(error);
-            //possiblement renvoyé un status erreur et un message
+            res.status(500).json({ message: "Internal server error." });
         }
-
     },
 
     getUserByName : async (req, res) => {

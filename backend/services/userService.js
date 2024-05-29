@@ -7,62 +7,65 @@ const userService = {
 
     },
 
-    register : async (data) => {
-
+    registerUser: async (data) => {
         try {
-            const { username, email, hashedPassword, birthday, description, avatar_url, preferences } = data;
-
+            const { username, email, hashedPassword, birthday, description, avatar_url } = data;
+            
             await sql.connect(sqlConfig);
             const userExistReq = new sql.Request();
 
+            
             const userExist = await userExistReq
-                                .input('username', sql.NVarChar, username)
-                                .query('SELECT * FROM users WHERE username = @username')
+            .input('username', sql.NVarChar, username)
+            .query('SELECT * FROM users WHERE username = @username')
+            
 
             if (userExist.rowsAffected > 0) {
-                throw new Error("L'utilisateur avec ce username existe déja.")
+                throw new Error("L'utilisateur avec ce username existe déjà.");
             }
 
-            const pushNewUserReq = new sql.Request()
+            const pushNewUserReq = new sql.Request();
 
             const pushNewUser = await pushNewUserReq
-                                    .input('username', sql.NVarChar, username)
-                                    .input('email', sql.NVarChar, email)
-                                    .input('hashedPassword', sql.NVarChar, hashedPassword)
-                                    .input('birthday', sql.Date, birthday)
-                                    .input('description', sql.NVarChar, description)
-                                    .input('avatar_url', sql.NVarChar, avatar_url)
-                    .query('INSERT INTO users(username, email, hashedPassword, birthday, description, avatar_url) VALUES(@username, @email, @hashedPassword, @birthday, @description, @avatar_url)')
+                    .input('username', sql.NVarChar, username)
+                    .input('email', sql.NVarChar, email)
+                    .input('hashedPassword', sql.NVarChar, hashedPassword)
+                    .input('birthday', sql.Date, birthday)
+                    .input('description', sql.NVarChar, description)
+                    .input('avatar_url', sql.NVarChar, avatar_url)
+                .query('INSERT INTO users (username, email, hashedPassword, birthday, description, avatar_url) OUTPUT INSERTED.* VALUES (@username, @email, @hashedPassword, @birthday, @description, @avatar_url)');
 
-            if (pushNewUser.recordset <= 0) {
-                console.error(error.message);
-                return res.sendStatus(500).json({message : "Erreur interne du serveur"})
-            }
 
-            const userId = pushNewUser.recordset[0].user_id
-
-            const pushUserPreferenceReq = new sql.Request()
-
-            for (const preference of preferences) {
-                const { type, name, is_liked } = preference
-
-                await pushUserPreferenceReq
-                                .input('user_id', sql.Int, userId)
-                                .input('type', sql.NVarChar, type)
-                                .input('name', sql.NVarChar, name)
-                                .input('is_liked', sql.Bit, is_liked)
-                    .query('INSERT INTO user_preference(user_id, type, name, is_liked) VALUES(@user_id, @type, @name, @is_liked)')
-            }
-
-            return {
-                message : "Utilisateur enregistré avec succès."
-            }
+            return pushNewUser.recordset[0].user_id;
 
         } catch (error) {
             console.error(error);
-            throw new Error
+            throw new Error(error.message);
         }
+    },
 
+    addUserPreferences: async (userId, preferences) => {
+        try {
+            await sql.connect(sqlConfig);
+            
+            for (const preference of preferences) {
+                const { type, name, is_liked } = preference;
+                const pushUserPreferenceReq = new sql.Request();
+                
+                await pushUserPreferenceReq
+                        .input('user_id', sql.Int, userId)
+                        .input('type', sql.NVarChar, type)
+                        .input('name', sql.NVarChar, name)
+                        .input('is_liked', sql.Bit, is_liked)
+                    .query('INSERT INTO user_preference (user_id, type, name, is_liked) VALUES (@user_id, @type, @name, @is_liked)');
+            }
+
+            return { message: "Preferences added successfully." };
+
+        } catch (error) {
+            console.error(error);
+            throw new Error(error.message);
+        }
     },
 
     getUserByUsername: async (username) => {
@@ -73,7 +76,7 @@ const userService = {
             // Utilisation de '=' pour une correspondance exacte
             const result = await request
                 .input('username', sql.NVarChar, username)
-                .query('SELECT username, description FROM users WHERE username = @username');
+                .query('SELECT * FROM users WHERE username = @username');
 
             if (result.recordset.length > 0) {
                 return result.recordset[0]; // Retourner l'utilisateur s'il est trouvé
