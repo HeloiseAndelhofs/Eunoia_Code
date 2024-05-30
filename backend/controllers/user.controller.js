@@ -6,38 +6,58 @@ const registerValidator = require('../validators/register.validators')
 
 const userController = {
 
-    // login : async (req, res) => {
+    login : async (req, res) => {
 
-    //     try {
-    //         const validateReq = yup.validate(req.body);
-    //         if (validateReq.error) {
-    //             return res.status(400).json({message : validateReq.error}) //vérifier le code http
-    //         }
+        try {
 
-    //         const { username, password } = validateReq
-    //         const authHeader = req.headers['authorization'];
-    //         const token = authHeader && authHeader.split(' ')[1];
+            const validateReq = loginValidators.validate(req.body);
+            if (validateReq.error) {
+                return res.status(400).json({message : validateReq.error}) //vérifier le code http
+            }
+
+            const { username, password } = validateReq
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1];
+
+            const user = await userService.login(username, password, token)
 
 
-    //     } catch (error) {
+        } catch (error) {
             
-    //     }
+        }
 
-    // },
+    },
 
     register: async (req, res) => {
         try {
-            const { username, email, password, birthday, description, avatar_url, preferences } = req.body;
 
+            const validateReq = await registerValidator.validate(req.body)
+            if (validateReq.error) {
+                return res.status(400).json({message : validateReq.error})
+            }
+
+            const { username, email, password, birthday, description, avatar_url, preferences } = validateReq;
             const hashedPassword = await bcrypt.hash(password, 10);
-
             const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url });
 
             if (preferences && preferences.length > 0) {
                 await userService.addUserPreferences(userId, preferences);
             }
 
-            res.status(201).json({ message: "User registered successfully." });
+            const payload = {
+                userId: user.user_id,
+                email: user.email,
+                username: user.username,
+                password : user.password
+            }
+            const option = {
+                expiresIn : '9d'
+            }
+            const secret= process.env.JWT_SECRET
+            const token = jwt.sign(payload, secret, option)
+
+            res.setHeader('Authorization', `Bearer ${token}`)
+            res.status(201).json({token : token, message: "User registered and connected successfully." });
 
         } catch (error) {
             console.error(error);

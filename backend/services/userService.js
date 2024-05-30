@@ -3,7 +3,30 @@ const sqlConfig = require('../database');
 
 const userService = {
 
-    login : async () =>  {
+    login : async (username, password, token) =>  {
+
+        try {
+            sql.connect(sqlConfig)
+
+            if (token) {
+                const payload = jwt.verify(token, process.env.SECRET);
+                const userId = payload.user_id
+
+                const tokenUserReq = new sql.Request()
+                const user = await tokenUserReq
+                                .input('userId', sql.Int, userId)
+                                .query('SELECT * FROM users WHERE user_id = @userId')
+
+                if (user.recordset.length > 0) {
+                    return user.recordset[0]
+                } else {
+                    throw new Error(' Aucun utilisateur trouvé');
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            throw new Error
+        }
 
     },
 
@@ -11,7 +34,7 @@ const userService = {
         try {
             const { username, email, hashedPassword, birthday, description, avatar_url } = data;
             
-            await sql.connect(sqlConfig);
+             sql.connect(sqlConfig);
             const userExistReq = new sql.Request();
 
             
@@ -33,8 +56,9 @@ const userService = {
                     .input('birthday', sql.Date, birthday)
                     .input('description', sql.NVarChar, description)
                     .input('avatar_url', sql.NVarChar, avatar_url)
-                .query('INSERT INTO users (username, email, hashedPassword, birthday, description, avatar_url) OUTPUT INSERTED.* VALUES (@username, @email, @hashedPassword, @birthday, @description, @avatar_url)');
 
+                .query('INSERT INTO users (username, email, hashedPassword, birthday, description, avatar_url) OUTPUT INSERTED. * VALUES (@username, @email, @hashedPassword, @birthday, @description, @avatar_url)');
+ 
 
             return pushNewUser.recordset[0].user_id;
 
@@ -46,7 +70,7 @@ const userService = {
 
     addUserPreferences: async (userId, preferences) => {
         try {
-            await sql.connect(sqlConfig);
+             sql.connect(sqlConfig);
             
             for (const preference of preferences) {
                 const { type, name, is_liked } = preference;
@@ -70,7 +94,7 @@ const userService = {
 
     getUserByUsername: async (username) => {
         try {
-            await sql.connect(sqlConfig);
+             sql.connect(sqlConfig);
             const request = new sql.Request();
 
             // Utilisation de '=' pour une correspondance exacte
