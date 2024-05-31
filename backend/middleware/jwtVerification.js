@@ -23,7 +23,7 @@ const jwtVerification = (req, res, next) => {
                 // Répondre avec un statut 401 (Non autorisé)
                 return res.sendStatus(401)
             // Si l'erreur est due à l'expiration du token
-            } else if (error && error.name == "TokenExpiredToken") {
+            } else if (error && error.name == "TokenExpiredError") {
                 // Répondre avec un statut 403 (Interdit) et un message d'erreur
                 return res.status(403).json({ message: "Le token a expiré, veuillez vous reconnecter." })
             } else {

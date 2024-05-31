@@ -16,11 +16,13 @@ const userController = {
             }
 
             const { username, password } = validateReq
-            const authHeader = req.headers['authorization'];
-            const token = authHeader && authHeader.split(' ')[1];
+            const token = req.cookies.token
 
             const user = await userService.login(username, password, token)
+             if (user) {
 
+             }
+             return res.status(404).json({message : "Aucun utilisateur n'a été trouvé, voulez vous créer un compte ?"})
 
         } catch (error) {
             
@@ -36,9 +38,9 @@ const userController = {
                 return res.status(400).json({message : validateReq.error})
             }
 
-            const { username, email, password, birthday, description, avatar_url, preferences } = validateReq;
+            const { username, email, password, birthday, description, avatar_url, preferences, tokenAccepted } = validateReq;
             const hashedPassword = await bcrypt.hash(password, 10);
-            const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url });
+            const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, tokenAccepted });
 
             if (preferences && preferences.length > 0) {
                 await userService.addUserPreferences(userId, preferences);
@@ -48,7 +50,6 @@ const userController = {
                 userId: user.user_id,
                 email: user.email,
                 username: user.username,
-                password : user.password
             }
             const option = {
                 expiresIn : '9d'
@@ -56,8 +57,16 @@ const userController = {
             const secret= process.env.JWT_SECRET
             const token = jwt.sign(payload, secret, option)
 
-            res.setHeader('Authorization', `Bearer ${token}`)
-            res.status(201).json({token : token, message: "User registered and connected successfully." });
+            if (userId.tokenAccepted === true) {
+                res.cookie('token', token, {httpOnly : true})
+                res.status(201).json({token : token, message: "User registered and connected successfully." });
+
+            } else {
+                
+                //le met dans le local storage
+                res.status(201).json({token : token, message: "User registered and connected successfully." });
+            }
+
 
         } catch (error) {
             console.error(error);
