@@ -10,3 +10,9 @@ router.use('/eunoia', eunoiaRouter)
 
 
 module.exports = router
+
+
+
+
+
+//❗❕❗❕ Rajouter les tokens dans le SESSION STORAGE, vérifier que l'authentification FONCTIONNE (les 2 types : COOKIES ET SESSION)

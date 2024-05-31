@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const userService = require('../services/userService');
 const loginValidators = require('../validators/login.validators');
 const registerValidator = require('../validators/register.validators')
+const utilityFunc = require('../services/utilityFunctions.service')
 
 const userController = {
 
@@ -14,18 +15,57 @@ const userController = {
             if (validateReq.error) {
                 return res.status(400).json({message : validateReq.error}) //vérifier le code http
             }
+            
+            //enableToken sera une case à cochée
+            const { username, password, tokenStatusForm } = validateReq
 
-            const { username, password } = validateReq
             const token = req.cookies.token
 
             const user = await userService.login(username, password, token)
              if (user) {
 
              }
+
+            let tokenStatus = await  utilityFunc.tokenStatus(user.username)
+
+            if (tokenStatus !== tokenStatusForm) {
+                tokenStatus = await utilityFunc.tokenStatusUpdate(tokenStatusForm, username) 
+            }
+
+            const payload = {
+                userId: user.user_id,
+                email: user.email,
+                username: user.username,
+            }
+            const option = {
+                expiresIn :'9d'
+            }
+            const secret= process.env.JWT_SECRET
+            const newToken = jwt.sign(payload, secret, option)
+
+            switch (tokenStatus) {
+                case true:
+                    res.cookie('token', newToken, {httpOnly : true})
+                    res.status(201).json({token : newToken, message: "User registered and connected successfully." });
+
+                    break;
+            
+                case false:
+                    //mettre token dans local storage
+                    res.status(201).json({token : token, message: "User registered and connected successfully." });
+                    
+                    break;
+
+                default:
+                    res.status(500).json({ message: "Unexpected token status." });
+                    break;
+            }
+
              return res.status(404).json({message : "Aucun utilisateur n'a été trouvé, voulez vous créer un compte ?"})
 
         } catch (error) {
-            
+            console.error(error);
+            res.status(500).json({ message: "Internal server error." });
         }
 
     },
@@ -38,9 +78,10 @@ const userController = {
                 return res.status(400).json({message : validateReq.error})
             }
 
-            const { username, email, password, birthday, description, avatar_url, preferences, tokenAccepted } = validateReq;
+            //enableToken sera une case à coché
+            const { username, email, password, birthday, description, avatar_url, preferences, enableToken } = validateReq;
             const hashedPassword = await bcrypt.hash(password, 10);
-            const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, tokenAccepted });
+            const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, enableToken });
 
             if (preferences && preferences.length > 0) {
                 await userService.addUserPreferences(userId, preferences);
@@ -57,16 +98,14 @@ const userController = {
             const secret= process.env.JWT_SECRET
             const token = jwt.sign(payload, secret, option)
 
-            if (userId.tokenAccepted === true) {
+            if (enableToken === true) {
                 res.cookie('token', token, {httpOnly : true})
                 res.status(201).json({token : token, message: "User registered and connected successfully." });
 
-            } else {
-                
-                //le met dans le local storage
-                res.status(201).json({token : token, message: "User registered and connected successfully." });
-            }
+            } 
 
+            //le met dans le local storage
+            res.status(201).json({token : token, message: "User registered and connected successfully." });
 
         } catch (error) {
             console.error(error);
