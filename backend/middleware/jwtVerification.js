@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 
 // Middleware pour la vérification du JWT
 const jwtVerification = (req, res, next) => {
@@ -6,20 +7,16 @@ const jwtVerification = (req, res, next) => {
     // Récupération de la clé secrète du JWT à partir des variables d'environnement
     const secret = process.env.JWT_SECRET;
 
-    // Récupération des en-têtes d'autorisation de la requête
-    const authHeaders = req.headers['authorization'];
+    const token = req.cookies.token
 
-    // Extraction du token de l'en-tête d'autorisation (le format est généralement "Bearer [token]")
-    const token = authHeaders && authHeaders.split(' ')[1]
-
-    // Si le token n'existe pas, passer au middleware suivant
+    // Si le token n'existe pas, passer au middleware suivant4
     if (!token) {
         next()
     } else {
         // Vérification du token avec la clé secrète
         jwt.verify(token, secret, (error, payload) => {
             // Si une erreur survient lors de la vérification et que ce n'est pas une erreur d'expiration du token
-            if (error && error.name !== "TokenExpiredToken") {
+            if (error && error.name !== "TokenExpiredError") {
                 // Répondre avec un statut 401 (Non autorisé)
                 return res.sendStatus(401)
             // Si l'erreur est due à l'expiration du token

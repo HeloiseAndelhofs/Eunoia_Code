@@ -13,7 +13,7 @@ const userController = {
 
             const validateReq = loginValidators.validate(req.body);
             if (validateReq.error) {
-                return res.status(400).json({message : validateReq.error}) //vérifier le code http
+                return res.status(400).json({message : validateReq.error.details[0].message}) //vérifier le code http
             }
             
             //enableToken sera une case à cochée
@@ -22,8 +22,9 @@ const userController = {
             const token = req.cookies.token
 
             const user = await userService.login(username, password, token)
-             if (user) {
-
+            
+             if (!user) {
+                 return res.status(404).json({message : "Aucun utilisateur n'a été trouvé, voulez vous créer un compte ?"})
              }
 
             let tokenStatus = await  utilityFunc.tokenStatus(user.username)
@@ -45,23 +46,22 @@ const userController = {
 
             switch (tokenStatus) {
                 case true:
-                    res.cookie('token', newToken, {httpOnly : true})
-                    res.status(201).json({token : newToken, message: "User registered and connected successfully." });
+                    res.cookie('token', newToken, { expires : new Date(Date.now() + 86400000), httpOnly : true })
+                    res.status(201).json({token : token, message: "Utilisateur connecté." });
 
                     break;
             
                 case false:
-                    //mettre token dans local storage
-                    res.status(201).json({token : token, message: "User registered and connected successfully." });
+                    res.cookie('token', newToken)
+                    res.status(201).json({token : token, message: "Utilisateur connecté." });
                     
                     break;
 
                 default:
-                    res.status(500).json({ message: "Unexpected token status." });
+                    res.status(500).json({ message: "Status du token innatendu." });
                     break;
             }
 
-             return res.status(404).json({message : "Aucun utilisateur n'a été trouvé, voulez vous créer un compte ?"})
 
         } catch (error) {
             console.error(error);
@@ -99,13 +99,14 @@ const userController = {
             const token = jwt.sign(payload, secret, option)
 
             if (enableToken === true) {
-                res.cookie('token', token, {httpOnly : true})
-                res.status(201).json({token : token, message: "User registered and connected successfully." });
+                res.cookie('token', token, { expires : new Date(Date.now() + 86400000), httpOnly : true })
+                res.status(201).json({token : token, message: "Utilisateur connecté et enregistré." });
+
 
             } 
 
             //le met dans le local storage
-            res.status(201).json({token : token, message: "User registered and connected successfully." });
+            res.status(201).json({token : token, message: "Utilisateur connecté et enregistré." });
 
         } catch (error) {
             console.error(error);

@@ -15,4 +15,4 @@ module.exports = router
 
 
 
-//❗❕❗❕ Rajouter les tokens dans le SESSION STORAGE, vérifier que l'authentification FONCTIONNE (les 2 types : COOKIES ET SESSION)
+//❗❕❗❕ vérifier que l'authentification FONCTIONNE (les deux durées, session et 10 jours), rajouter jwt connection et refresh
