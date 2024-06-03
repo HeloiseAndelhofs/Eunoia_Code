@@ -118,7 +118,7 @@ const userService = {
             // Utilisation de '=' pour une correspondance exacte
             const result = await request
                 .input('username', sql.NVarChar, username)
-                .query('SELECT username, email, description, avatar_ur, created_at FROM users WHERE username = @username');
+                .query('SELECT username, email, description, avatar_url, created_at FROM users WHERE username = @username');
 
             if (result.recordset.length > 0) {
                 return result.recordset[0]; // Retourner l'utilisateur s'il est trouvé

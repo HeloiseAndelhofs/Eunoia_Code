@@ -78,10 +78,10 @@ const userController = {
                 return res.status(400).json({message : validateReq.error})
             }
 
-            //enableToken sera une case à coché
-            const { username, email, password, birthday, description, avatar_url, preferences, enableToken } = validateReq;
+            //tokenAccepted sera une case à coché
+            const { username, email, password, birthday, description, avatar_url, preferences, tokenAccepted } = validateReq;
             const hashedPassword = await bcrypt.hash(password, 10);
-            const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, enableToken });
+            const userId = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, tokenAccepted });
 
             if (preferences && preferences.length > 0) {
                 await userService.addUserPreferences(userId, preferences);
@@ -98,7 +98,7 @@ const userController = {
             const secret= process.env.JWT_SECRET
             const token = jwt.sign(payload, secret, option)
 
-            if (enableToken === true) {
+            if (tokenAccepted === true) {
                 res.cookie('token', token, { expires : new Date(Date.now() + 86400000), httpOnly : true })
                 res.status(201).json({token : token, message: "Utilisateur connecté et enregistré." });
 

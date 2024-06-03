@@ -23,8 +23,7 @@ const registerValidator = yup.object({
         .required('Veuillez fournir votre date de naissance'),
     description: yup.string()
         .max(250),
-    tokenAccepted: yup
-        .oneOf([true, false])
+    tokenAccepted: yup.boolean().required()
 
 });
 
