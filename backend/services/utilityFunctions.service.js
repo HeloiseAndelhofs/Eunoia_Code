@@ -102,6 +102,30 @@ utilityFuncService = {
             throw new Error
 
         }
+    },
+
+    updateCheckUsernameNemail : async (field, value, userId) => {
+
+        try {
+        await sql.connect(sqlConfig)           
+        const queryField = field === 'email' ? 'email' : 'username'
+        
+        const request = new sql.Request()
+        const checkIfused = await request
+                        .input('userId', sql.Int, userId)
+                        .input('value', sql.NVarChar, value)
+                        .query(`SELECT * FROM users WHERE ${queryField} = @${value} AND user_id != @userId`)
+
+        if (checkIfused.recordset.length > 0) {
+            throw new Error(`${field} déja utilisé, veuillez en choisir un autre`)
+        }
+        return ;
+
+        } catch (error) {
+            console.error(error);
+            throw new Error()
+        }
+
     }
 }
 

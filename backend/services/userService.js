@@ -90,6 +90,8 @@ const userService = {
     addUserPreferences: async (userId, preferences, transaction) => {
         try {
             
+            await sql.connect(sqlConfig)
+
             for (const preference of preferences) {
                 const { type, name, is_liked } = preference;
                 const pushUserPreferenceReq = new sql.Request(transaction);
@@ -128,6 +130,43 @@ const userService = {
         } catch (error) {
             console.error("[getUserByUsername] Erreur lors de la recherche de l'utilisateur : ", error.message);
             throw new Error();
+        }
+    },
+
+    updateUserProfile : async (data, userId) => {
+        try {
+            
+            await sql.connect(sqlConfig)
+
+            const { username, email, oldPassword, newPassword, description, avatar_url, preferences } = data
+
+            if (username) {
+                await utilityFunc.updateCheckUsernameNemail('username', username, userId )
+            }
+
+            if (email) {
+                await utilityFunc.updateCheckUsernameNemail('email', email, userId )
+            }
+
+            if (newPassword) {
+                const user = await new sql.Request()
+                                    .input('userId', sql.NVarChar, userId)
+                                    .query('SELECT * FROM users WHERE user_id = @userId')
+
+                if (!(user.recordset.length > 0)) {
+                    throw new Error('Aucun utilisateur trouvé')
+                }
+
+                const isMatch = await bcrypt.compare(oldPassword, user.recordset[0].hashedPassword)
+                if(!isMatch){
+                    throw new Error('Les mot de passes ne correspondent pas')
+                }
+
+            }
+            
+
+        } catch (error) {
+            
         }
     }
 };

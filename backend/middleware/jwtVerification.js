@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser')
 
 // Middleware pour la vérification du JWT
 const jwtVerification = (req, res, next) => {

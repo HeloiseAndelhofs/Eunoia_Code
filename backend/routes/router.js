@@ -12,7 +12,3 @@ router.use('/eunoia', eunoiaRouter)
 module.exports = router
 
 
-
-
-
-//❗❕❗❕ vérifier que l'authentification FONCTIONNE (les deux durées, session et 10 jours), rajouter jwt connection et refresh

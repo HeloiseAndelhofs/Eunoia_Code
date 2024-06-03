@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const userService = require('../services/userService');
 const loginValidators = require('../validators/login.validators');
 const registerValidator = require('../validators/register.validators');
+const updateValidator = require('../validators/update.validators');
 const utilityFunc = require('../services/utilityFunctions.service');
 const sql = require('mssql');
 const database = require('../database')
@@ -169,6 +170,23 @@ const userController = {
         } catch (error) {
             console.error(error);
             return res.status(500).json({message :"Une erreur interne au serveur est survenue."}) //vérifier le code http
+        }
+    },
+
+    updateUserProfile : async (req, res) => {
+        try {
+            
+            const { userId } = req.payload;
+            const validateReq = updateValidator.validate(req.body, {abortEarly: false})
+            const { username, email, oldPassword, newPassword, description, avatar_url, preferences } = validateReq;
+
+            const checkedUserUpdateField = await userService.updateUserProfile({ username, email, oldPassword, newPassword, description, avatar_url, preferences }, userId) 
+
+             
+
+
+        } catch (error) {
+            
         }
     }
 
