@@ -8,11 +8,8 @@ const loginValidators = yup.object({
     password : yup.string()
         .min(1).max(100)
         .required(),
-    confirmPassword: yup.string()
-        .oneOf([yup.ref('password')], 'Les mots de passe doivent correspondre')
-        .min(1).max(100)
-        .required('Veuillez confirmer votre mot de passe'),
-    //vérifier les max charactères + vérification du mot de passe dans le register par rapport à la sécurité
+    tokenAccepted : yup.boolean()
+        .default(false)
 
 });
 

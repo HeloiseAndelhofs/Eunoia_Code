@@ -5,13 +5,17 @@ utilityFuncService = {
 
     tokenStatus : async (username) => {
         try {
-            sql.connect(sqlConfig)
+            await sql.connect(sqlConfig)
 
             const checkStatusReq = new sql.Request()
             const checkStatus = await checkStatusReq
                                     .input('username', sql.NVarChar, username)
-                                .query('SELECT tokenAccepted FROM users WHERE username = @username')
+                                .query('SELECT * FROM users WHERE username = @username')
 
+            
+                                console.log(`Requête SQL exécutée : SELECT * FROM users WHERE username = ${username}`);
+                                console.log(`Résultat de la requête : `, checkStatus.recordset);
+                                console.log(checkStatus.recordset);
             if (!(checkStatus.recordset.length > 0)) {
                 throw new Error('Utilisateur introuvable')
             }
@@ -26,7 +30,9 @@ utilityFuncService = {
     tokenStatusUpdate : async (updateTokenStatus, username) => {
 
         try {
-            sql.connect(sqlConfig)
+            await sql.connect(sqlConfig)
+
+// console.log( 'update token : ' + updateTokenStatus);
 
             const updateStatusReq = new sql.Request()
             const updateStatus = await updateStatusReq
@@ -34,8 +40,14 @@ utilityFuncService = {
                                     .input('username', sql.NVarChar, username)
                                 .query('UPDATE users SET tokenAccepted = @updateTokenStatus WHERE username = @username')
 
-            if (updateStatus.rowsAffected > 0) {
-                return updateStatus
+            const selectStatusReq = new sql.Request()
+            const selectStatus = await selectStatusReq
+                                    .input('username', sql.NVarChar, username)
+                                    .query('SELECT * FROM users WHERE username = @username')
+
+            if (selectStatus.recordset.length > 0) {
+                // console.log('update status service : ' + selectStatus.recordset[0].tokenAccepted);
+                return selectStatus.recordset[0].tokenAccepted
             }
 
             throw new Error('Problème pendant l\'update du status du token')
@@ -47,6 +59,8 @@ utilityFuncService = {
 
     checkUserByUsernameAndPassword : async (username, password) => {
         try {
+            await sql.connect(sqlConfig)
+
             const checkUserReq = new sql.Request();
             const checkUser = await checkUserReq
                 .input('username', sql.NVarChar, username)
@@ -65,6 +79,28 @@ utilityFuncService = {
         } catch (error) {
             
             throw new Error(`Aucun utilisateur n'a été trouvé.`);
+        }
+    },
+    selectUserById : async (userId) => {
+        try {
+            
+            await sql.connect(sqlConfig)
+
+            const selectUserReq = new sql.Request()
+            const selectUser = await selectUserReq
+                                .input('userId', sql.Int, userId)
+                                .query('SELECT * FROM users WHERE user_id = @userId')
+
+            if (selectUser.recordset.length > 0) {
+                return selectUser.recordset[0]
+            }
+
+                throw new Error('[LOGIN ==> UTILITY FUNC SERVICE ==> SELECT USER BY ID] : Aucun utilisateur trouvé')
+
+        } catch (error) {
+            console.error(error);
+            throw new Error
+
         }
     }
 }

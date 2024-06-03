@@ -2,13 +2,14 @@ const sql = require('mssql');
 const sqlConfig = require('../database');
 const bcrypt = require('bcrypt');
 const utilityFunc = require('../services/utilityFunctions.service')
+const jwt = require('jsonwebtoken')
 
 const userService = {
 
     
      login : async (username, password, token) => {
         try {
-            sql.connect(sqlConfig);
+            await sql.connect(sqlConfig);
     
             if (token) {
                 try {
@@ -30,7 +31,7 @@ const userService = {
                        return await utilityFunc.checkUserByUsernameAndPassword(username, password)
 
                     } else {
-                        throw new Error('Token invalide');
+                        throw new Error(error, 'Token invalide');
                     }
                 }
             } else {
@@ -47,11 +48,11 @@ const userService = {
     },
     
 
-    registerUser: async (data) => {
+    registerUser: async (data, transaction) => {
         try {
             const { username, email, hashedPassword, birthday, description, avatar_url, enableToken } = data;
             
-             sql.connect(sqlConfig);
+            await sql.connect(sqlConfig);
             const userExistReq = new sql.Request();
 
             
@@ -64,7 +65,7 @@ const userService = {
                 throw new Error("L'utilisateur avec ce username existe déjà.");
             }
 
-            const pushNewUserReq = new sql.Request();
+            const pushNewUserReq = new sql.Request(transaction);
 
             const pushNewUser = await pushNewUserReq
                     .input('username', sql.NVarChar, username)
@@ -78,7 +79,7 @@ const userService = {
                 .query('INSERT INTO users (username, email, hashedPassword, birthday, description, avatar_url, tokenAccepted) OUTPUT INSERTED. * VALUES (@username, @email, @hashedPassword, @birthday, @description, @avatar_url, @enableToken)');
  
 
-            return pushNewUser.recordset[0].user_id;
+            return pushNewUser.recordset[0];
 
         } catch (error) {
             console.error(error);
@@ -86,13 +87,12 @@ const userService = {
         }
     },
 
-    addUserPreferences: async (userId, preferences) => {
+    addUserPreferences: async (userId, preferences, transaction) => {
         try {
-             sql.connect(sqlConfig);
             
             for (const preference of preferences) {
                 const { type, name, is_liked } = preference;
-                const pushUserPreferenceReq = new sql.Request();
+                const pushUserPreferenceReq = new sql.Request(transaction);
                 
                 await pushUserPreferenceReq
                         .input('user_id', sql.Int, userId)
@@ -112,7 +112,7 @@ const userService = {
 
     getUserByUsername: async (username) => {
         try {
-             sql.connect(sqlConfig);
+            await sql.connect(sqlConfig);
             const request = new sql.Request();
 
             // Utilisation de '=' pour une correspondance exacte
@@ -127,7 +127,7 @@ const userService = {
             }
         } catch (error) {
             console.error("[getUserByUsername] Erreur lors de la recherche de l'utilisateur : ", error.message);
-            throw error;
+            throw new Error();
         }
     }
 };
