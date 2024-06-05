@@ -217,14 +217,14 @@ const userController = {
             const { userId } = req.payload;
             //IL MANQUAIT UN AWAIT SA MERE LA PUTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             const validateReq = await updateValidator.validate(req.body, {abortEarly: false})
-            console.log('VALIDATE REQ : ' + (await validateReq).description);
+            // console.log('VALIDATE REQ : ' + (await validateReq).description);
             
             if (validateReq.error) {
                 return res.status(400).json({message : validateReq.error.details[0].message})
             }
             
             const { username, description, avatar_url, preferences } = validateReq;
-            console.log(description + ' DESCRIPTION IN CONTROLLER');
+            // console.log(description + ' DESCRIPTION IN CONTROLLER');
 
             transaction = new sql.Transaction(await sql.connect(database))
             await transaction.begin()
@@ -284,6 +284,35 @@ const userController = {
             return res.status(200).json({ message: 'Mot de passe mis à jour avec succès'})
 
         } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Erreur interne du serveur' });
+        }
+    },
+
+    archiveUser : async (req, res) => {
+        let transaction
+        try {
+
+            const userId = req.payload.userId
+
+            transaction = new sql.Transaction(await sql.connect(database))
+            await transaction.begin()
+
+            const result = await userService.archiveUser(userId, transaction)
+
+            if (result) {
+                await transaction.commit()
+
+                return res.status(201).json({message : 'Utilisateur supprimé avec succès'})
+            }
+
+            return res.status(500).json({message: 'Erreur interne du serveur'})
+
+
+        } catch (error) {
+            if (transaction) {
+                await transaction.rollback();
+            }
             console.error(error);
             return res.status(500).json({ message: 'Erreur interne du serveur' });
         }

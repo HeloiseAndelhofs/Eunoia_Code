@@ -4,6 +4,7 @@ const jwtVerification = require('../middleware/jwtVerification')
 
 router.get('/profile', jwtVerification, userController.getYourProfile)
 router.put('/profile', jwtVerification, userController.updateUserProfile)
+router.delete('/profile', jwtVerification, userController.archiveUser)
 
 router.get('/settings', jwtVerification, userController.getUserSettings);
 router.put('/settings/email', jwtVerification, userController.updateUserEmail);

@@ -248,9 +248,6 @@ const userService = {
             return {message : 'Profil mis à jour avec succès'}
 
         } catch (error) {
-            // if (transaction) {
-            //     await transaction.rollback();
-            // }
             console.error(error);
             throw new Error(error.message);
         }
@@ -316,6 +313,45 @@ const userService = {
         } catch (error) {
             console.error("[updateUserPassword] Erreur lors de la mise à jour du mdp : ", error.message);
             throw new Error();
+        }
+    },
+
+    archiveUser : async (userId) => {
+        try {
+            
+            await sql.connect(sqlConfig)
+
+            const request = new sql.Request()
+            const result = await request
+                            .input('userId', sql.Int, userId)
+                            .query(`
+                            INSERT INTO archived_users (user_id, username, email, hashedPassword, description, avatar_url, created_at)
+                            SELECT user_id, username, email, hashedPassword, description, avatar_url, created_at
+                            FROM users
+                            WHERE user_id = @userId
+                        `);  
+
+
+            if (result.rowsAffected > 0) {
+                
+                await new sql.Request()
+                    .input('userId', sql.Int, userId)
+                    .query('DELETE FROM user_preference WHERE user_id = @userId')
+
+
+                await new sql.Request()
+                    .input('userId', sql.Int, userId)
+                    .query('DELETE FROM users WHERE user_id = @userId')
+
+
+                return result
+
+            } 
+            throw new Error()
+
+        } catch (error) {
+            console.error(error);
+            throw new Error(error.message);
         }
     }
 };

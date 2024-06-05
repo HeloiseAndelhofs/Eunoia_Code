@@ -2,7 +2,6 @@
 
 ### ***User :***
 
-- Update
 
 - Delete 
 
@@ -25,8 +24,7 @@
 
 ## A faire absolument
 
-
-- Récupérer les pérerences quand on récupere un user
+- Trouver un autre moyen d'update les préférences (éviter de delete et de rajouter après)
 
 - Vérifier que l'authentification fonctionne (les deux durées, session et 10 jours)
 
