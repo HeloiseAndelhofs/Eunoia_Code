@@ -113,7 +113,7 @@ const userController = {
             transaction = new sql.Transaction(await sql.connect(database))
             await transaction.begin()
 
-            const user = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, enableToken : tokenAccepted, transaction });
+            const user = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, enableToken : tokenAccepted }, transaction);
             const userId = user.user_id
 
             if (preferences && preferences.length > 0) {
@@ -173,20 +173,114 @@ const userController = {
         }
     },
 
+    getYourProfile : async (req, res) => {
+
+        try {
+            const username = req.payload.username
+
+            // console.log('USERNAME : ' + username);
+            const result = await userService.getUserByUsername(username);
+            // console.log('RESULT : ' + result);
+            if (result) {
+                return res.status(200).json(result) //vérifier le code http
+            } else {
+                return res.status(404).json({message :"Aucun utilisateur trouvé."}) 
+            }
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({message :"Une erreur interne au serveur est survenue."}) 
+        }
+
+    },
+
+
+    getUserSettings: async (req, res) => {
+        try {
+            const { userId } = req.payload;
+            const user = await userService.getUserSettings(userId);
+            if (user) {
+                return res.status(200).json(user);
+            } else {
+                return res.status(404).json({ message: "Utilisateur non trouvé." });
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Erreur interne du serveur" });
+        }
+    },
+
     updateUserProfile : async (req, res) => {
+        let transaction
         try {
             
             const { userId } = req.payload;
             const validateReq = updateValidator.validate(req.body, {abortEarly: false})
-            const { username, email, oldPassword, newPassword, description, avatar_url, preferences } = validateReq;
+            
+            if (validateReq.error) {
+                return res.status(400).json({message : validateReq.error.details[0].message})
+            }
+            
+            const { username, description, avatar_url, preferences } = validateReq;
+            console.log(description + ' DESCRIPTION IN CONTROLLER');
 
-            const checkedUserUpdateField = await userService.updateUserProfile({ username, email, oldPassword, newPassword, description, avatar_url, preferences }, userId) 
+            transaction = new sql.Transaction(await sql.connect(database))
+            await transaction.begin()
 
-             
+            const updatedUser = await userService.updateUserProfile({ username, description, avatar_url, preferences }, userId) 
 
+             if (!updatedUser) {
+                return res.status(400).json({message : 'Erreur lors de la mise à jour du profil'})
+             }
+
+             await transaction.commit();
+             return res.status(200).json({ message: 'Profil mis à jour avec succès', user: updatedUser });
+
+         } catch (error) {
+             if (transaction) {
+                 await transaction.rollback();
+             }
+             console.error(error);
+             return res.status(500).json({ message: 'Erreur interne du serveur' });
+         }
+    },
+
+    updateUserEmail : async (req, res) =>{
+        try {
+            
+            const { userId } = req.payload
+            const { email } = req.body
+
+            const updatedEmail = await userService.updateEmail(userId, email)
+
+            if (!updatedEmail) {
+                return res.status(400).json({message : 'Erreur lors de la mise à jour de l\'email.'})
+            }
+
+            return res.status(201).json({message : 'Email mis à jour'})
 
         } catch (error) {
-            
+            console.error(error);
+            return res.status(500).json({ message: 'Erreur interne du serveur' });
+        }
+    },
+
+    updateUserPassword : async (req, res) => {
+        try {
+
+            const { userId } = req.payload;
+            const { oldPassword, newPassword } = req.body;
+
+            const updatedUser = await userService.updateUserPassword(userId, oldPassword, newPassword);
+            if (!updatedUser) {
+                return res.status(400).json({ message: 'Erreur lors de la mise à jour du mot de passe' });
+            }
+
+            return res.status(200).json({ message: 'Mot de passe mis à jour avec succès'})
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Erreur interne du serveur' });
         }
     }
 

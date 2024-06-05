@@ -81,12 +81,12 @@ utilityFuncService = {
             throw new Error(`Aucun utilisateur n'a été trouvé.`);
         }
     },
-    selectUserById : async (userId) => {
+    selectUserById : async (userId, transaction) => {
         try {
             
             await sql.connect(sqlConfig)
 
-            const selectUserReq = new sql.Request()
+            const selectUserReq = transaction ? new sql.Request(transaction) : new sql.Request()
             const selectUser = await selectUserReq
                                 .input('userId', sql.Int, userId)
                                 .query('SELECT * FROM users WHERE user_id = @userId')
@@ -104,17 +104,16 @@ utilityFuncService = {
         }
     },
 
-    updateCheckUsernameNemail : async (field, value, userId) => {
+    updateCheckFields : async (field, value, userId, transaction) => {
 
         try {
         await sql.connect(sqlConfig)           
-        const queryField = field === 'email' ? 'email' : 'username'
         
-        const request = new sql.Request()
+        const request = new sql.Request(transaction)
         const checkIfused = await request
                         .input('userId', sql.Int, userId)
                         .input('value', sql.NVarChar, value)
-                        .query(`SELECT * FROM users WHERE ${queryField} = @${value} AND user_id != @userId`)
+                        .query(`SELECT * FROM users WHERE ${field} = @value AND user_id != @userId`)
 
         if (checkIfused.recordset.length > 0) {
             throw new Error(`${field} déja utilisé, veuillez en choisir un autre`)

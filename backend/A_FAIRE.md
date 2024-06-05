@@ -6,6 +6,7 @@
 
 - Delete 
 
+
 *Mettre en place les avatars*
 
 
@@ -39,3 +40,5 @@
 - Faire en sorte que si l'utilisateur est connecté, il soit marqué comme "en ligne" et ne puisse que se déconnecter
 
 - Rajouter jwt connection et refresh
+
+- Quand on cherche un utilisateur, faire une recherche sur les utilisateurs avec un nom ressemblant (majuscule, sans majuscule, espace, pas espace, tiret, pas tiret, ...) --> il faudra changer le controller/service pour ça
