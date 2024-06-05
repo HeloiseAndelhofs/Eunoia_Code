@@ -194,7 +194,6 @@ const userService = {
             console.log('DATA : ' + data);
             console.log(description);
 
-            //tous mes champs sont "undefined" + si updatedField n'est pas rempli ça me renverra une erreur même si tu veux juste update tes pref
 
             let updatedField = []
 
@@ -217,45 +216,41 @@ const userService = {
 
                 console.log('UPDATED FIELD ARRAY :' + updatedField.length);
 
-                if (!(updatedField.length > 0)) {
-                    throw new Error('update user 1')
+                if (updatedField.length > 0) {
+                    const updateQuery = `UPDATE users SET ${updatedField.join(', ')} WHERE user_id = @userId`;
+                    const updateFieldsReq = new sql.Request(transaction);
+                    await updateFieldsReq
+                        .input('userId', sql.Int, userId)
+                        .query(updateQuery);
                 }
-
-                const updateQuery = `UPDATE users SET ${updatedField.join(', ')} WHERE user_id = @userId`;
-                const updateFieldsReq = new sql.Request(transaction);
-                await updateFieldsReq
-                    .input('userId', sql.Int, userId)
-                    .query(updateQuery);
-
 
 
                 if (!(preferences && preferences.length > 0)) { 
                     throw new Error('update user 2')
                 }
 
-                await transaction.commit()
                 await new sql.Request(transaction)
-                        .input('userId', sql.NVarChar, userId)                    
-                        .query('DELETE * FROM user_preferences WHERE user_id = @userId')
+                        .input('userId', sql.Int, userId)                    
+                        .query('DELETE FROM user_preference WHERE user_id = @userId')
 
                 for(const pref of preferences){
                     const { type, name, is_liked } = pref
                     
                     await new sql.Request(transaction)
-                        .input('user_id', sql.Int, userId)
+                        .input('userId', sql.Int, userId)
                         .input('type', sql.NVarChar, type)
                         .input('name', sql.NVarChar, name)
                         .input('is_liked', sql.Bit, is_liked)
-                        .query('INSERT INTO user_preference (user_id, type, name, is_liked) VALUES (@user_id, @type, @name, @is_liked)')
+                        .query('INSERT INTO user_preference (user_id, type, name, is_liked) VALUES (@userId, @type, @name, @is_liked)')
                 }
 
 
             return {message : 'Profil mis à jour avec succès'}
 
         } catch (error) {
-            if (transaction) {
-                await transaction.rollback();
-            }
+            // if (transaction) {
+            //     await transaction.rollback();
+            // }
             console.error(error);
             throw new Error(error.message);
         }
@@ -272,28 +267,31 @@ const userService = {
             const result = await request
                             .input('userId', sql.Int, userId)
                             .input('email', sql.NVarChar, email)
-                            .query('UPDATE users SET email = @value WHERE user_id = @userId');
+                            .query('UPDATE users SET email = @email WHERE user_id = @userId');
 
             if (!(result.rowsAffected > 0)) {
                 throw new Error()
             }
 
-            return
+            return result
 
         } catch (error) {
             console.error("[updateUserEmail] Erreur lors de la mise à jour de l'email : ", error.message);
-            throw new Error();
+            throw new Error(error);
         }
     },
 
     updateUserPassword : async (userId, oldPassword, newPassword) => {
         try {
-            
+            // console.log('SALUT BOUBOU 1');
             await sql.connect(sqlConfig)
 
             const user = await utilityFunc.selectUserById(userId)
+            // console.log('HELLO 2');
 
-            if (!(user.recordset.length > 0)) {
+            // console.log('USER : ' + user);
+
+            if (!user) {
                 throw new Error('Aucun utilisateur trouvé')
             }
 
@@ -313,7 +311,7 @@ const userService = {
                 throw new Error()
             }
 
-            return 
+            return updatedPasswordField
 
         } catch (error) {
             console.error("[updateUserPassword] Erreur lors de la mise à jour du mdp : ", error.message);

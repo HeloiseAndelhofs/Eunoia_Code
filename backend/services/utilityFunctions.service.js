@@ -1,5 +1,6 @@
 const sql = require('mssql')
 const sqlConfig = require('../database')
+const { login } = require('./userService')
 
 utilityFuncService = {
 
@@ -92,6 +93,7 @@ utilityFuncService = {
                                 .query('SELECT * FROM users WHERE user_id = @userId')
 
             if (selectUser.recordset.length > 0) {
+                console.log(selectUser.recordset[0]);
                 return selectUser.recordset[0]
             }
 

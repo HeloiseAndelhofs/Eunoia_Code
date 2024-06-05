@@ -215,7 +215,9 @@ const userController = {
         try {
             
             const { userId } = req.payload;
-            const validateReq = updateValidator.validate(req.body, {abortEarly: false})
+            //IL MANQUAIT UN AWAIT SA MERE LA PUTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            const validateReq = await updateValidator.validate(req.body, {abortEarly: false})
+            console.log('VALIDATE REQ : ' + (await validateReq).description);
             
             if (validateReq.error) {
                 return res.status(400).json({message : validateReq.error.details[0].message})
@@ -269,7 +271,10 @@ const userController = {
         try {
 
             const { userId } = req.payload;
+            // console.log('USER ID UPDATE PASSWORD : ' + userId);
             const { oldPassword, newPassword } = req.body;
+            // console.log('OLD PASSWORD : ' + oldPassword);
+            // console.log('NEW PASSWORD : ' + newPassword);
 
             const updatedUser = await userService.updateUserPassword(userId, oldPassword, newPassword);
             if (!updatedUser) {
