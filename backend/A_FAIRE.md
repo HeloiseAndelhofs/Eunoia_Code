@@ -3,7 +3,6 @@
 ### ***User :***
 
 
-- Delete 
 
 
 *Mettre en place les avatars*
@@ -17,6 +16,8 @@
 ### ***Salons :***
 
 - Web Socket
+
+-- Salons likés
 
 
 
@@ -40,3 +41,5 @@
 - Rajouter jwt connection et refresh
 
 - Quand on cherche un utilisateur, faire une recherche sur les utilisateurs avec un nom ressemblant (majuscule, sans majuscule, espace, pas espace, tiret, pas tiret, ...) --> il faudra changer le controller/service pour ça
+
+-- Rajouter les admins et créateurs des salons/évenements
