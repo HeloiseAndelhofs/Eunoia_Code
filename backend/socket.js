@@ -9,11 +9,11 @@ const configureSocketIo = (server) => {
     io.on('connection', (socket) => {
         console.log('Un utilisateur s\'est connecté : ', socket.id);
 
-        socket.on('joinGroup', (groupId) => groupController.joinGroup(socket, groupId));
-        socket.on('sendMessageToGroup', ({ groupId, message }) => groupController.sendMessageToGroup(socket, groupId, message, io));
+        socket.on('joinGroup', (roomId) => roomsController.joinRoom(socket, roomId));
+        socket.on('sendMessageToGroup', ({ roomId, message }) => roomsController.sendMessageToRoom(socket, roomId, message, io));
 
-        socket.on('sendPrivateMessage', ({ recipientId, message }) => privateMessageController.sendPrivateMessage(socket, recipientId, message, io));
-        socket.on('acceptPrivateMessage', ({ messageId }) => privateMessageController.acceptPrivateMessage(socket, messageId, io));
+        socket.on('sendPrivateMessage', ({ sender, message }) => groupChatController.sendPrivateMessage(socket, sender, message, io));
+        socket.on('acceptPrivateMessage', ({ messageId }) => groupChatController.acceptPrivateMessage(socket, messageId, io));
 
         socket.on('disconnect', () => {
             console.log('user disconnected:', socket.id);

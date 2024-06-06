@@ -19,6 +19,8 @@
 
 -- Salons likés
 
+-- Pouvoir créer un salon et en devenir admin
+
 
 
 
