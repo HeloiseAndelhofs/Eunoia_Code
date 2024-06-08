@@ -1,13 +1,19 @@
 const express = require('express');
 const router = require('./routes/router');
 const cookieParser = require('cookie-parser');
+const http = require('http')
+const configureSocketIo = require('./socket')
 
-const {PORT} = process.env
-const server = express();
+const { PORT } = process.env
+const app = express();
+const server = http.createServer(app);
 
-server.use(express.json());
-server.use(cookieParser())
-server.use('/', router)
+configureSocketIo(server);
+
+
+app.use(express.json());
+app.use(cookieParser())
+app.use('/', router)
 
 
 server.listen(PORT, () => {

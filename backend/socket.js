@@ -5,9 +5,11 @@ const groupChatController = require('./controllers/groupChat.controller')
 const configureSocketIo = (server) => {
 
     const io = socketIo(server);
+    const userSocketMap = new Map()
      
-    io.on('connection', (socket) => {
-        console.log('Un utilisateur s\'est connecté : ', socket.id);
+    io.on('connection', (socket, userId) => {
+        console.log('Un utilisateur s\'est connecté : ', );
+        userSocketMap.set(userId, socket.id)
 
         socket.on('joinGroup', (roomId) => roomsController.joinRoom(socket, roomId));
         socket.on('sendMessageToGroup', ({ roomId, message }) => roomsController.sendMessageToRoom(socket, roomId, message, io));

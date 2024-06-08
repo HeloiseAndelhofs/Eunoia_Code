@@ -21,6 +21,8 @@
 
 -- Pouvoir créer un salon et en devenir admin
 
+***Mettre en place les web socket coté server après le client***
+
 
 
 

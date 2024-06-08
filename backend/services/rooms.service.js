@@ -3,9 +3,11 @@ const sqlConfig = require('../database')
 
 
 //RAJOUTER POUR VOIR TOUS LES MEMBRES D'UN GROUP (NOMBRE,...)
+//RAJOUTER UNE METHODE POUR CREER UN SALON
+//RAJOUTER LES ADMINS
 
 
-roomsService = {
+const roomsService = {
 
     joinRoom : async (userId, roomId) => {
         try {
