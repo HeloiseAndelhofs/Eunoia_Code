@@ -74,17 +74,17 @@ const userController = {
                     res.cookie('token', newToken, { expires : new Date(Date.now() + 86400000), httpOnly : true })
                     return res.status(201).json({token : token, message: "Utilisateur connecté." });
 
-                    break;
+                    // break;
             
                 case false:
                     res.cookie('token', newToken)
                     return res.status(201).json({token : token, message: "Utilisateur connecté." });
                     
-                    break;
+                    // break;
 
                 default:
                     return res.status(500).json({ message: "Status du token innatendu." });
-                    break;
+                    // break;
             }
 
 
