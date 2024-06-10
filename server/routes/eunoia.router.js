@@ -6,6 +6,8 @@ router.get('/profile', jwtVerification, userController.getYourProfile)
 router.put('/profile', jwtVerification, userController.updateUserProfile)
 router.delete('/profile', jwtVerification, userController.archiveUser)
 
+
+//mettre delete dans settings ?
 router.get('/settings', jwtVerification, userController.getUserSettings);
 router.put('/settings/email', jwtVerification, userController.updateUserEmail);
 router.put('/settings/password', jwtVerification, userController.updateUserPassword);
