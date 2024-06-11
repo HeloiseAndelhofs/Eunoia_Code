@@ -1,7 +1,6 @@
-const yup = require('yup')
+const yup = require('yup');
 
-const registerValidator = yup.object({
-
+const registerValidatorStep1 = yup.object({
     username: yup.string()
         .min(1).max(50)
         .matches(/^[A-Za-z0-9_\s]*$/)
@@ -21,6 +20,9 @@ const registerValidator = yup.object({
     birthday: yup.date()
         .max(new Date(), "La date de naissance ne peut pas être dans le futur")
         .required('Veuillez fournir votre date de naissance'),
+});
+
+const registerValidatorStep2 = yup.object({
     description: yup.string()
         .max(250),
     avatar_url: yup.string()
@@ -34,9 +36,6 @@ const registerValidator = yup.object({
             is_liked: yup.boolean().required('Veuillez cocher la case pour indiquer si vous aimez ou non le sujet ajouté.')
         })
     )
-
 });
 
-module.exports = registerValidator;
-
-
+module.exports = { registerValidatorStep1, registerValidatorStep2 };

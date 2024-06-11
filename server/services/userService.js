@@ -48,14 +48,14 @@ const userService = {
     },
     
 
-    registerUser: async (data, transaction) => {
+    registerUserStep1: async (data, transaction) => {
         try {
-            const { username, email, hashedPassword, birthday, description, avatar_url, enableToken } = data;
-            
-            await sql.connect(sqlConfig);
-            const userExistReq = new sql.Request();
+            const userExistReq = new sql.Request(transaction);
 
+            const { username, email, hashedPassword, birthday } = data;
             
+            // await sql.connect(sqlConfig);
+
             const userExist = await userExistReq
                                 .input('username', sql.NVarChar, username)
                             .query('SELECT * FROM users WHERE username = @username')
@@ -72,15 +72,30 @@ const userService = {
                     .input('email', sql.NVarChar, email)
                     .input('hashedPassword', sql.NVarChar, hashedPassword)
                     .input('birthday', sql.Date, birthday)
-                    .input('description', sql.NVarChar, description)
-                    .input('avatar_url', sql.NVarChar, avatar_url)
-                    .input('enableToken', sql.Bit, enableToken)
 
-                .query('INSERT INTO users (username, email, hashedPassword, birthday, description, avatar_url, tokenAccepted) OUTPUT INSERTED. * VALUES (@username, @email, @hashedPassword, @birthday, @description, @avatar_url, @enableToken)');
+                .query('INSERT INTO users (username, email, hashedPassword, birthday) OUTPUT INSERTED. * VALUES (@username, @email, @hashedPassword, @birthday)');
  
 
             return pushNewUser.recordset[0];
 
+        } catch (error) {
+            console.error(error);
+            throw new Error(error.message);
+        }
+    },
+
+    updateUserStep2: async (data, transaction) => {
+        try {
+            const { userId, description, avatar_url, tokenAccepted } = data;
+
+            const updateUserReq = new sql.Request(transaction);
+    
+            await updateUserReq
+                    .input('userId', sql.Int, userId)
+                    .input('description', sql.NVarChar, description)
+                    .input('avatar_url', sql.NVarChar, avatar_url)
+                    .input('tokenAccepted', sql.Bit, tokenAccepted)
+                .query('UPDATE users SET description = @description, avatar_url = @avatar_url, tokenAccepted = @tokenAccepted WHERE user_id = @userId');
         } catch (error) {
             console.error(error);
             throw new Error(error.message);
@@ -316,12 +331,12 @@ const userService = {
         }
     },
 
-    archiveUser : async (userId) => {
+    archiveUser : async (userId, transaction) => {
         try {
             
             await sql.connect(sqlConfig)
 
-            const request = new sql.Request()
+            const request = new sql.Request(transaction)
             const result = await request
                             .input('userId', sql.Int, userId)
                             .query(`
@@ -334,12 +349,12 @@ const userService = {
 
             if (result.rowsAffected > 0) {
                 
-                await new sql.Request()
+                await new sql.Request(transaction)
                     .input('userId', sql.Int, userId)
                     .query('DELETE FROM user_preference WHERE user_id = @userId')
 
 
-                await new sql.Request()
+                await new sql.Request(transaction)
                     .input('userId', sql.Int, userId)
                     .query('DELETE FROM users WHERE user_id = @userId')
 

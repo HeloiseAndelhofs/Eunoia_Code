@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userService = require('../services/userService');
 const loginValidators = require('../validators/login.validators');
-const registerValidator = require('../validators/register.validators');
+const { registerValidatorStep1 } = require('../validators/register.validators');
+const { registerValidatorStep2 } = require('../validators/register.validators')
 const updateValidator = require('../validators/update.validators');
 const utilityFunc = require('../services/utilityFunctions.service');
 const sql = require('mssql');
@@ -95,32 +96,69 @@ const userController = {
 
     },
 
-    register: async (req, res) => {
+    registerStep1: async (req, res) => {
 
         let transaction;
 
         try {
-
-            const validateReq = await registerValidator.validate(req.body, {abortEarly: false})
+            transaction = new sql.Transaction(await sql.connect(database))
+            
+            const validateReq = await registerValidatorStep1.validate(req.body, {abortEarly: false})
             if (validateReq.error) {
                 return res.status(400).json({message : validateReq.error})
-            }
-
-            //tokenAccepted sera une case à coché
-            const { username, email, password, birthday, description, avatar_url, preferences, tokenAccepted } = validateReq;
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            transaction = new sql.Transaction(await sql.connect(database))
+                }
+                
+                //tokenAccepted sera une case à coché
+                const { username, email, password, birthday } = validateReq;
+                const hashedPassword = await bcrypt.hash(password, 10);
+                
             await transaction.begin()
 
-            const user = await userService.registerUser({ username, email, hashedPassword, birthday, description, avatar_url, enableToken : tokenAccepted }, transaction);
-            const userId = user.user_id
+            const user = await userService.registerUserStep1({ username, email, hashedPassword, birthday }, transaction);
+            
+            await transaction.commit()
 
+                    res.cookie('userId', user.user_id, {expires : new Date(Date.now() + 60000)})
+                    // return res.status(201).json({userId : user.user_id, message: "Register step 1 s'est bien passé" }).cookie('userId', user.user_id, {expires : 60000})
+                    return res.status(201).json({userId : user.user_id, message: "Register step 1 s'est bien passé" })
+
+        } catch (error) {
+                if (transaction) {
+                    await transaction.rollback()
+                    throw new Error('Le rollback fonctionne')
+                }
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error." });
+        }
+    },
+
+    registerStep2 : async (req, res) => {
+        let transaction;
+        let userId;
+            
+        try {
+            transaction = new sql.Transaction(await sql.connect(database));
+
+            userId = req.cookies.userId
+            console.log(userId);
+            const validateReq = await registerValidatorStep2.validate(req.body, { abortEarly: false });
+            if (validateReq.error) {
+                return res.status(400).json({ message: validateReq.error });
+            }
+            
+            const { description, avatar_url, preferences, tokenAccepted } = validateReq;
+            
+            await transaction.begin();
+
+            await userService.updateUserStep2({ userId, description, avatar_url, tokenAccepted }, transaction);
+            
             if (preferences && preferences.length > 0) {
                 await userService.addUserPreferences(userId, preferences, transaction);
             }
-
-            await transaction.commit()
+            
+            await transaction.commit();
+            
+            const user = await utilityFunc.selectUserById(userId)
 
             const payload = {
                 userId: userId,
@@ -132,26 +170,24 @@ const userController = {
             }
             const secret= process.env.JWT_SECRET
             const token = jwt.sign(payload, secret, option)
-
+        
             if (tokenAccepted === true) {
                 console.log("DANS LE COOKIE");
                 res.cookie('token', token, { expires : new Date(Date.now() + 86400000), httpOnly : true })
-                return res.status(201).json({token : token, message: "Utilisateur connecté et enregistré." });
-
-
+                return res.status(201).json({token : token, message: "Register step 2 s'est bien passé, Utilisateur connecté et enregistré." });
             } 
-
+        
             console.log("DANS LE SESSION COOKIE ");
-                   res.cookie('token', token)
-            return res.status(201).json({token : token, message: "Utilisateur connecté et enregistré." });
-
+                res.cookie('token', token)
+                           
         } catch (error) {
-                if (transaction) {
-                    await transaction.rollback()
-                    throw new Error('Le rollback fonctionne')
-                }
-            console.error(error);
-            return res.status(500).json({ message: "Internal server error." });
+            await utilityFunc.deleteStep1(userId)
+            if (transaction.error) {
+                await transaction.rollback()
+                throw new Error('Le rollback fonctionne')
+            }
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error." });
         }
     },
 
@@ -229,7 +265,7 @@ const userController = {
             transaction = new sql.Transaction(await sql.connect(database))
             await transaction.begin()
 
-            const updatedUser = await userService.updateUserProfile({ username, description, avatar_url, preferences }, userId) 
+            const updatedUser = await userService.updateUserProfile({ username, description, avatar_url, preferences }, userId, transaction) 
 
              if (!updatedUser) {
                 return res.status(400).json({message : 'Erreur lors de la mise à jour du profil'})
@@ -239,7 +275,7 @@ const userController = {
              return res.status(200).json({ message: 'Profil mis à jour avec succès', user: updatedUser });
 
          } catch (error) {
-             if (transaction) {
+             if (transaction.error) {
                  await transaction.rollback();
              }
              console.error(error);
@@ -310,7 +346,7 @@ const userController = {
 
 
         } catch (error) {
-            if (transaction) {
+            if (transaction.error) {
                 await transaction.rollback();
             }
             console.error(error);

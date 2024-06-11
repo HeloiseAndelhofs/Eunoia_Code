@@ -106,6 +106,28 @@ utilityFuncService = {
         }
     },
 
+    deleteStep1 : async (userId) => {
+        try {
+            
+            await sql.connect(sqlConfig)
+
+            const deleteUserReq = new sql.Request()
+            const deleteUser = await deleteUserReq
+                                .input('userId', sql.Int, userId)
+                                .query('DELETE FROM users WHERE user_id = @userId')
+
+            if (deleteUser.rowsAffected > 0) {
+                console.log("C'est good Les COPAINS");
+                return
+            }
+
+        } catch (error) {
+            console.error(error);
+            throw new Error
+
+        }
+    },
+
     updateCheckFields : async (field, value, userId, transaction) => {
 
         try {
