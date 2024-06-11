@@ -4,8 +4,7 @@ const jwtVerification =require('../middleware/jwtVerification')
 
 
 
-router.post('/register',  userController.registerStep1);
-router.post('/register/step2', userController.registerStep2)
+router.post('/register', userController.register);
 router.post('/login', jwtVerification, userController.login)
 
 

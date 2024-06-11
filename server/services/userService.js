@@ -84,9 +84,9 @@ const userService = {
         }
     },
 
-    updateUserStep2: async (data, transaction) => {
+    updateUserStep2: async (userId, data, transaction) => {
         try {
-            const { userId, description, avatar_url, tokenAccepted } = data;
+            const { description, avatar_url, tokenAccepted } = data;
 
             const updateUserReq = new sql.Request(transaction);
     

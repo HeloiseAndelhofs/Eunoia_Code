@@ -96,98 +96,89 @@ const userController = {
 
     },
 
-    registerStep1: async (req, res) => {
-
+    register : async (req, res) => {
         let transaction;
-
+        const { step } = req.body;
+        let userId;
+    
         try {
-            transaction = new sql.Transaction(await sql.connect(database))
-            
-            const validateReq = await registerValidatorStep1.validate(req.body, {abortEarly: false})
-            if (validateReq.error) {
-                return res.status(400).json({message : validateReq.error})
+
+            transaction = new sql.Transaction(await sql.connect(database));
+            await transaction.begin();
+    
+            if (step === 1) {
+                console.log('STEP 1');
+
+                const validateReq = await registerValidatorStep1.validate(req.body, { abortEarly: false });
+                if (validateReq.error) {
+                    return res.status(400).json({ message: validateReq.error });
                 }
-                
-                //tokenAccepted sera une case à coché
+    
                 const { username, email, password, birthday } = validateReq;
                 const hashedPassword = await bcrypt.hash(password, 10);
-                
-            await transaction.begin()
+    
+                const user = await userService.registerUserStep1({ username, email, hashedPassword, birthday }, transaction);
+                await transaction.commit();
+    
+                res.cookie('userId', user.user_id, { expires: new Date(Date.now() + 60000) });
+                return res.status(201).json({ userId: user.user_id, message: "Étape 1 de l'inscription réussie." });
 
-            const user = await userService.registerUserStep1({ username, email, hashedPassword, birthday }, transaction);
-            
-            await transaction.commit()
+            } else if (step === 2 && req.cookies.userId) {
+                console.log('STEP 2');
 
-                    res.cookie('userId', user.user_id, {expires : new Date(Date.now() + 60000)})
-                    // return res.status(201).json({userId : user.user_id, message: "Register step 1 s'est bien passé" }).cookie('userId', user.user_id, {expires : 60000})
-                    return res.status(201).json({userId : user.user_id, message: "Register step 1 s'est bien passé" })
+                userId = req.cookies.userId
 
-        } catch (error) {
-                if (transaction) {
-                    await transaction.rollback()
-                    throw new Error('Le rollback fonctionne')
+                const validateReq = await registerValidatorStep2.validate(req.body, { abortEarly: false });
+                if (validateReq.error) {
+                    return res.status(400).json({ message: validateReq.error });
                 }
-            console.error(error);
-            return res.status(500).json({ message: "Internal server error." });
-        }
-    },
+    
+                const { description, avatar_url, preferences, tokenAccepted } = validateReq;
+    
+                await userService.updateUserStep2(userId, { description, avatar_url, tokenAccepted }, transaction);
+    
+                if (preferences && preferences.length > 0) {
+                    await userService.addUserPreferences(userId, preferences, transaction);
+                }
+    
+                await transaction.commit();
+    
+                const user = await utilityFunc.selectUserById(userId);
+    
+                const payload = {
+                    userId: userId,
+                    email: user.email,
+                    username: user.username,
+                };
+    
+                const option = {
+                    expiresIn: '9d',
+                };
+    
+                const secret = process.env.JWT_SECRET;
+                const token = jwt.sign(payload, secret, option);
+    
+                if (tokenAccepted) {
+                    res.cookie('token', token, { expires: new Date(Date.now() + 86400000), httpOnly: true });
+                    return res.status(201).json({ token: token, message: "Register step 2 s'est bien passé, Utilisateur connecté et enregistré." });
+                }
+    
+                res.cookie('token', token);
+                return res.status(201).json({ token: token, message: "Register step 2 s'est bien passé." });
 
-    registerStep2 : async (req, res) => {
-        let transaction;
-        let userId;
-            
-        try {
-            transaction = new sql.Transaction(await sql.connect(database));
-
-            userId = req.cookies.userId
-            console.log(userId);
-            const validateReq = await registerValidatorStep2.validate(req.body, { abortEarly: false });
-            if (validateReq.error) {
-                return res.status(400).json({ message: validateReq.error });
+            } else {
+                return res.status(400).json({ message: "Données invalides." });
             }
-            
-            const { description, avatar_url, preferences, tokenAccepted } = validateReq;
-            
-            await transaction.begin();
-
-            await userService.updateUserStep2({ userId, description, avatar_url, tokenAccepted }, transaction);
-            
-            if (preferences && preferences.length > 0) {
-                await userService.addUserPreferences(userId, preferences, transaction);
-            }
-            
-            await transaction.commit();
-            
-            const user = await utilityFunc.selectUserById(userId)
-
-            const payload = {
-                userId: userId,
-                email: user.email,
-                username: user.username,
-            }
-            const option = {
-                expiresIn : '9d'
-            }
-            const secret= process.env.JWT_SECRET
-            const token = jwt.sign(payload, secret, option)
-        
-            if (tokenAccepted === true) {
-                console.log("DANS LE COOKIE");
-                res.cookie('token', token, { expires : new Date(Date.now() + 86400000), httpOnly : true })
-                return res.status(201).json({token : token, message: "Register step 2 s'est bien passé, Utilisateur connecté et enregistré." });
-            } 
-        
-            console.log("DANS LE SESSION COOKIE ");
-                res.cookie('token', token)
-                           
         } catch (error) {
+
             await utilityFunc.deleteStep1(userId)
-            if (transaction.error) {
-                await transaction.rollback()
-                throw new Error('Le rollback fonctionne')
+
+            if (transaction) {
+                await transaction.rollback();
             }
-        console.error(error);
-        return res.status(500).json({ message: "Internal server error." });
+
+            console.error(error);
+            return res.status(500).json({ message: "Erreur interne du serveur." });
         }
     },
 
