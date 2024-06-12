@@ -204,7 +204,7 @@ const Register = () => {
                     </div>
                     <div className="register_form">
                         <label htmlFor="tokenAccepted"> J'accepte les cookies </label>
-                            <input name="tokenAccepted" type="checkbox" checked={formDataStep2.tokenAccepted} onChange={(e) => setFormDataStep2({...formDataStep2, tokenAccepted: e.target.checked})} required />
+                            <input name="tokenAccepted" type="checkbox" checked={formDataStep2.tokenAccepted} onChange={(e) => setFormDataStep2({...formDataStep2, tokenAccepted: e.target.checked})} />
                     </div>
                     <button type="submit">Inscription</button>
                 </form>

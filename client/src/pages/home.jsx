@@ -20,7 +20,7 @@ const Home = () => {
 
             <div>
                 <button>
-                    <Link to="/login">Connection</Link>
+                    <Link to="/login">Connexion</Link>
                 </button>
                 <button>
                     <Link to="/register">Inscription</Link>

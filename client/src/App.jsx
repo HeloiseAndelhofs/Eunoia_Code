@@ -4,6 +4,8 @@ import Home from './pages/Home'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Settings from './pages/Settings'
+import Eunoia from './pages/Eunoia'
 import './App.css'
 
 function App() {
@@ -20,6 +22,14 @@ function App() {
     {
       path : "register",
       element : <Register />
+    },
+    {
+      path : "/eunoia",
+      element : <Eunoia />
+    },
+    {
+      path : "/eunoia/settings",
+      element : <Settings />
     },
     {
       path : '/eunoia/profile',

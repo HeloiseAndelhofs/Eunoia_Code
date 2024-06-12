@@ -96,24 +96,19 @@ const userController = {
 
     },
 
-    register : async (req, res) => {
+    register: async (req, res) => {
         let transaction;
         const { step } = req.body;
-        console.log(
-            req.body,
-            step,
-            req.cookies.userId
-        );
+        console.log(req.body, step, req.cookies.userId);
         let userId;
     
         try {
-
             transaction = new sql.Transaction(await sql.connect(database));
             await transaction.begin();
     
             if (step === 1) {
                 console.log('STEP 1');
-
+    
                 const validateReq = await registerValidatorStep1.validate(req.body, { abortEarly: false });
                 if (validateReq.error) {
                     return res.status(400).json({ message: validateReq.error });
@@ -127,13 +122,13 @@ const userController = {
                 await transaction.commit();
     
                 res.cookie('userId', userId, { expires: new Date(Date.now() + 60000), httpOnly: true });
-                return res.status(201).json({ userId: user.user_id, message: "Étape 1 de l'inscription réussie." });
-
+                return res.status(201).json({ userId: user.user_id, message: "Étape 1 de l'inscription réussie. Veuillez compléter l'étape 2." });
+    
             } else if (step === 2 && req.cookies.userId) {
                 console.log('STEP 2');
-
-                userId = req.cookies.userId
-
+    
+                userId = req.cookies.userId;
+    
                 const validateReq = await registerValidatorStep2.validate(req.body, { abortEarly: false });
                 if (validateReq.error) {
                     return res.status(400).json({ message: validateReq.error });
@@ -171,22 +166,21 @@ const userController = {
     
                 res.cookie('token', token);
                 return res.status(201).json({ token: token, message: "Register step 2 s'est bien passé." });
-
+    
             } else {
                 return res.status(400).json({ message: "Données invalides." });
             }
         } catch (error) {
-
-            if (transaction && transaction.error) {
+            if (transaction) {
                 await transaction.rollback();
-                }
-
-            await utilityFunc.deleteStep1(userId)
-
+            }
+            // if (step === 1 && userId) {
+            //     await utilityFunc.deleteStep1(userId);
+            // }
             console.error(error);
             return res.status(500).json({ message: "Erreur interne du serveur." });
         }
-    },
+    },    
 
     getUserByName : async (req, res) => {
         try {

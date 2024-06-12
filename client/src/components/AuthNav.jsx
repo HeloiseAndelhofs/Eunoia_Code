@@ -6,12 +6,12 @@ import user from "../assets/user.svg"
 import styles from "../css_module/Nav.module.css"
 
 
-const NoAuthNav = () => {
+const AuthNav = () => {
     return (
 
         <nav className={styles.nav}>
             <>
-            <Link to="/" className={styles.link}>
+            <Link to="/eunoia" className={styles.link}>
                 <img src={logo} alt="logo" className={styles.img} />
             </Link>
             <h2 className={styles.title} >Eunoia</h2>
@@ -33,4 +33,4 @@ const NoAuthNav = () => {
     )
 }
 
-export default NoAuthNav
+export default AuthNav

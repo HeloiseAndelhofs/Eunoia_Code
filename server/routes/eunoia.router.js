@@ -3,7 +3,7 @@ const userController = require('../controllers/user.controller');
 const jwtVerification = require('../middleware/jwtVerification')
 
 router.get('/profile', jwtVerification, userController.getYourProfile)
-router.put('/profile', jwtVerification, userController.updateUserProfile)
+router.put('/profile/edit', jwtVerification, userController.updateUserProfile)
 router.delete('/profile', jwtVerification, userController.archiveUser)
 
 

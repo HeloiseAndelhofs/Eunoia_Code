@@ -15,7 +15,7 @@ const NoAuthNav = () => {
                 <h2 className={styles.title}>Eunoia</h2>
                 <ul className={styles.ul}>
                     <li className={styles.li}>
-                        <Link to="/login" className={styles.link} >Connection</Link>
+                        <Link to="/login" className={styles.link} >Connexion</Link>
                     </li>
                     <li className={styles.li}>
                         <Link to="/register" className={styles.link}>Inscription</Link>
