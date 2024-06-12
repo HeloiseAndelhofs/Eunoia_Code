@@ -3,6 +3,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import Home from './pages/Home'
 import Register from './pages/Register'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
 import './App.css'
 
 function App() {
@@ -19,6 +20,10 @@ function App() {
     {
       path : "register",
       element : <Register />
+    },
+    {
+      path : '/eunoia/profile',
+      element : <Dashboard />
     }
   ])
 

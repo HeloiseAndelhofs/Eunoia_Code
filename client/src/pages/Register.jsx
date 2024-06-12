@@ -20,13 +20,6 @@ const Register = () => {
         preferences: []
     });
 
-
-    const [currentPreference, setCurrentPreference] = useState({
-        type: "",
-        name: "",
-        isLiked: false
-    });
-
     const navigate = useNavigate();
 
     const handleChangeStep1 = (e) => {

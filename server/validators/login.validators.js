@@ -1,16 +1,22 @@
 const yup = require('yup');
 
-const loginValidators = yup.object({
-
-    username : yup.string()
+const loginValidators = yup.object().shape({
+    username: yup.string()
         .min(1).max(50)
-        .required(),
-    password : yup.string()
+        .when('tokenAccepted', {
+            is: false,
+            then: yup.string().required(),
+            otherwise: yup.string().notRequired(),
+        }),
+    password: yup.string()
         .min(1).max(100)
-        .required(),
-    tokenAccepted : yup.boolean()
+        .when('tokenAccepted', {
+            is: false,
+            then: yup.string().required(),
+            otherwise: yup.string().notRequired(),
+        }),
+    tokenAccepted: yup.boolean()
         .default(false)
-
 });
 
-module.exports = loginValidators
+module.exports = loginValidators;
