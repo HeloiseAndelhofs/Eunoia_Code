@@ -84,13 +84,13 @@ const userService = {
         }
     },
 
-    updateUserStep2: async (userId, data, transaction) => {
+    registerUserStep2: async (userId, data, transaction) => {
         try {
             const { description, avatar_url, tokenAccepted } = data;
 
-            const updateUserReq = new sql.Request(transaction);
+            const registerUserReq = new sql.Request(transaction);
     
-            await updateUserReq
+            await registerUserReq
                     .input('userId', sql.Int, userId)
                     .input('description', sql.NVarChar, description)
                     .input('avatar_url', sql.NVarChar, avatar_url)
@@ -108,14 +108,14 @@ const userService = {
             await sql.connect(sqlConfig)
 
             for (const preference of preferences) {
-                const { type, name, is_liked } = preference;
+                const { type, name, isLiked } = preference;
                 const pushUserPreferenceReq = new sql.Request(transaction);
                 
                 await pushUserPreferenceReq
                         .input('user_id', sql.Int, userId)
                         .input('type', sql.NVarChar, type)
                         .input('name', sql.NVarChar, name)
-                        .input('is_liked', sql.Bit, is_liked)
+                        .input('is_liked', sql.Bit, isLiked)
                     .query('INSERT INTO user_preference (user_id, type, name, is_liked) VALUES (@user_id, @type, @name, @is_liked)');
             }
 

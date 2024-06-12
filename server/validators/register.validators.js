@@ -1,5 +1,7 @@
 const yup = require('yup');
 
+console.log('JE SUIS LE VALIDATOR');
+
 const registerValidatorStep1 = yup.object({
     username: yup.string()
         .min(1).max(50)
@@ -28,12 +30,12 @@ const registerValidatorStep2 = yup.object({
     avatar_url: yup.string()
         .url()
         .required(),
-    tokenAccepted: yup.boolean().required('Veuillez cocher la case si vous acceptez les cookies.'),
+    tokenAccepted: yup.boolean(),
     preferences: yup.array().of(
         yup.object().shape({
             type: yup.string().required('Le type est requis.'),
             name: yup.string().required('Le nom est requis.'),
-            is_liked: yup.boolean().required('Veuillez cocher la case pour indiquer si vous aimez ou non le sujet ajouté.')
+            is_liked: yup.boolean()
         })
     )
 });

@@ -99,6 +99,11 @@ const userController = {
     register : async (req, res) => {
         let transaction;
         const { step } = req.body;
+        console.log(
+            req.body,
+            step,
+            req.cookies.userId
+        );
         let userId;
     
         try {
@@ -118,9 +123,10 @@ const userController = {
                 const hashedPassword = await bcrypt.hash(password, 10);
     
                 const user = await userService.registerUserStep1({ username, email, hashedPassword, birthday }, transaction);
+                userId = user.user_id;
                 await transaction.commit();
     
-                res.cookie('userId', user.user_id, { expires: new Date(Date.now() + 60000) });
+                res.cookie('userId', userId, { expires: new Date(Date.now() + 60000), httpOnly: true });
                 return res.status(201).json({ userId: user.user_id, message: "Étape 1 de l'inscription réussie." });
 
             } else if (step === 2 && req.cookies.userId) {
@@ -135,7 +141,7 @@ const userController = {
     
                 const { description, avatar_url, preferences, tokenAccepted } = validateReq;
     
-                await userService.updateUserStep2(userId, { description, avatar_url, tokenAccepted }, transaction);
+                await userService.registerUserStep2(userId, { description, avatar_url, tokenAccepted }, transaction);
     
                 if (preferences && preferences.length > 0) {
                     await userService.addUserPreferences(userId, preferences, transaction);
@@ -171,11 +177,11 @@ const userController = {
             }
         } catch (error) {
 
-            await utilityFunc.deleteStep1(userId)
-
-            if (transaction) {
+            if (transaction && transaction.error) {
                 await transaction.rollback();
-            }
+                }
+
+            await utilityFunc.deleteStep1(userId)
 
             console.error(error);
             return res.status(500).json({ message: "Erreur interne du serveur." });
