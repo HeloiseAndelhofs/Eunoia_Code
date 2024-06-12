@@ -1,5 +1,6 @@
 import React from "react";
 import NoAuthNav from "../components/NoAuthNav";
+import { Link } from "react-router-dom";
 
 const Home = () => {
 
@@ -18,8 +19,12 @@ const Home = () => {
             </p>
 
             <div>
-                <button>Connexion</button>
-                <button>Inscription</button>
+                <button>
+                    <Link to="/login">Connection</Link>
+                </button>
+                <button>
+                    <Link to="/register">Inscription</Link>
+                </button>
             </div>
         </main>
         </>

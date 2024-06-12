@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import NoAuthNav from "../components/NoAuthNav";
+import AuthNav from "../components/AuthNav";
 import axios from 'axios';
 
 
@@ -8,7 +8,7 @@ const Dashboard = () => {
 
 return (
     <>
-        <NoAuthNav /> 
+        <AuthNav /> 
 
         <h1>Votre Profile</h1>
     </>
