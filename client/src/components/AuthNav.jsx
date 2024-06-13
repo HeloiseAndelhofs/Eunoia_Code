@@ -1,12 +1,44 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg"
 import settings from "../assets/settings.svg"
 import user from "../assets/user.svg"
 import styles from "../css_module/Nav.module.css"
+import socket from '../socket'
+import { useAuth } from '../AuthContext'
+import logoutImg from '../assets/logout.svg'
 
 
 const AuthNav = () => {
+
+    const { logout } = useAuth()
+    const [error, setError] = useState(null);
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        socket.on('logout', () => {
+            console.log('HELLO');
+            logout()
+            navigate('/')
+        })
+        return () => {
+            socket.off('logout')
+        }
+    }, [logout, navigate])
+
+    const logoutFnc = async () => {
+        try {
+            await socket.emit('logout')
+        } catch (error) {
+            console.error(error);
+            setError(error.message);
+        }
+    }
+
+    if (error) {
+        return <p className={styles.errorMessage}>Erreur : {error}</p>;
+    }
+
     return (
 
         <nav className={styles.nav}>
@@ -21,6 +53,11 @@ const AuthNav = () => {
                     <Link to="/eunoia/profile" className={styles.link}>
                         <img src={user} alt="user logo" className={styles.img} />
                     </Link>
+                </li>
+                <li className={styles.li}>
+                    <button type="button" onClick={logoutFnc}>
+                        <img src={logoutImg} alt="logout" className={styles.img}/>
+                    </button>
                 </li>
                 <li className={styles.li}>
                     <Link to="/eunoia/settings" className={styles.link}>
