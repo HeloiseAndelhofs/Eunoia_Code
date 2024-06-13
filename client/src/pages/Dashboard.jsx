@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
 import AuthNav from "../components/AuthNav";
 import axios from 'axios';
 import { useEffect } from "react";
-import edit from "../assets/edit.svg"
-import styles from '../css_module/Dashboard.module.css'
+import Profile from "../components/Profile"
 
 
 const Dashboard = () => {
@@ -37,34 +35,7 @@ const Dashboard = () => {
         <>
             <AuthNav />
 
-            <div className={styles.dashboardContainer}>
-                <h1>Profile</h1>
-
-                {profileData && (
-                    <div>
-                        <div className={styles.profileInfo}>
-                            <h2>{profileData.user.username}</h2>
-                            <Link to={'/eunoia/profile/edit'}>
-                                <img src={edit} alt="edit" />
-                            </Link>
-                        </div>
-                        <div className={styles.profileDescription}>
-                            <p>Description : {profileData.user.description}</p>
-                            <p>Inscris le : {new Date(profileData.user.created_at).toLocaleDateString()}</p>
-                        </div>
-                        <div className={styles.profilePreferences}>
-                            <h3>Preferences :</h3>
-                            <ul>
-                                {profileData.pref.map((pref, index) => (
-                                    <li key={index}>
-                                        {pref.type} : {pref.name} - {pref.is_liked ? "Aime" : "N'aime pas"}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                )}
-            </div>
+            <Profile profileData = {profileData} />
         </>
     );
 

@@ -108,14 +108,14 @@ const userService = {
             await sql.connect(sqlConfig)
 
             for (const preference of preferences) {
-                const { type, name, isLiked } = preference;
+                const { type, name, is_liked } = preference;
                 const pushUserPreferenceReq = new sql.Request(transaction);
                 
                 await pushUserPreferenceReq
                         .input('user_id', sql.Int, userId)
                         .input('type', sql.NVarChar, type)
                         .input('name', sql.NVarChar, name)
-                        .input('is_liked', sql.Bit, isLiked)
+                        .input('is_liked', sql.Bit, is_liked)
                     .query('INSERT INTO user_preference (user_id, type, name, is_liked) VALUES (@user_id, @type, @name, @is_liked)');
             }
 
@@ -134,7 +134,7 @@ const userService = {
 
             const userResult = await request
                 .input('username', sql.NVarChar, username)
-                .query('SELECT user_id, username, description, avatar_url, created_at FROM users WHERE username = @username');
+                .query('SELECT user_id, username, description, avatar_url, birthday, created_at FROM users WHERE username = @username');
 
 
             // console.log('userRESULT : ' + JSON.stringify(userResult.recordset[0]));
@@ -145,7 +145,7 @@ const userService = {
                     const prefRequest = new sql.Request();
                     const prefResult = await prefRequest
                     .input('user_id', sql.Int, user.user_id)
-                    .query('SELECT type, name, is_liked FROM user_preference WHERE user_id = @user_id');
+                    .query('SELECT user_preference_id, type, name, is_liked FROM user_preference WHERE user_id = @user_id');
                     
                 // console.log('USER ID : ' + user.user_id);
                 // console.log('USER RESULT : ' + userResult.recordset[0]);
@@ -161,12 +161,13 @@ const userService = {
                         username: user.username,
                         description: user.description,
                         avatar_url: user.avatar_url,
-                        created_at: user.created_at
+                        created_at: user.created_at,
+                        birthday : user.birthday
                     };
 
                     return {
                         user : userResponse,
-                        pref : prefResult.recordset
+                        preferences : prefResult.recordset
                     }
                 }
 
