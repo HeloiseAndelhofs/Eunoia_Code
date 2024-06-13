@@ -294,7 +294,7 @@ const userService = {
         }
     },
 
-    updateUserPassword : async (userId, oldPassword, newPassword) => {
+    updateUserPassword : async (userId, currentPassword, newPassword) => {
         try {
             // console.log('SALUT BOUBOU 1');
             await sql.connect(sqlConfig)
@@ -308,7 +308,7 @@ const userService = {
                 throw new Error('Aucun utilisateur trouvé')
             }
 
-            const isMatch = await bcrypt.compare(oldPassword, user.hashedPassword)
+            const isMatch = await bcrypt.compare(currentPassword, user.hashedPassword)
             if(!isMatch){
                 throw new Error('Les mot de passes ne correspondent pas')
             }

@@ -8,6 +8,7 @@ const updateValidator = require('../validators/update.validators');
 const utilityFunc = require('../services/utilityFunctions.service');
 const sql = require('mssql');
 const database = require('../database')
+const updatePasswordValidator = require('../validators/updatePassword.validator')
 
 const userController = {
 
@@ -278,9 +279,9 @@ const userController = {
         try {
             
             const { userId } = req.payload
-            const { email } = req.body
+            const { newEmail } = req.body
 
-            const updatedEmail = await userService.updateEmail(userId, email)
+            const updatedEmail = await userService.updateEmail(userId, newEmail)
 
             if (!updatedEmail) {
                 return res.status(400).json({message : 'Erreur lors de la mise à jour de l\'email.'})
@@ -299,11 +300,12 @@ const userController = {
 
             const { userId } = req.payload;
             // console.log('USER ID UPDATE PASSWORD : ' + userId);
-            const { oldPassword, newPassword } = req.body;
+            const validateReq = await updatePasswordValidator.validate(req.body, {abortEarly : false})
+            const { currentPassword, newPassword } = validateReq;
             // console.log('OLD PASSWORD : ' + oldPassword);
             // console.log('NEW PASSWORD : ' + newPassword);
 
-            const updatedUser = await userService.updateUserPassword(userId, oldPassword, newPassword);
+            const updatedUser = await userService.updateUserPassword(userId, currentPassword, newPassword);
             if (!updatedUser) {
                 return res.status(400).json({ message: 'Erreur lors de la mise à jour du mot de passe' });
             }
