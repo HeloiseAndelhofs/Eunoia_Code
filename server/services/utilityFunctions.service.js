@@ -149,6 +149,22 @@ utilityFuncService = {
             throw new Error()
         }
 
+    },
+
+    getUserId: async (username) => {
+        try {
+            await sql.connect(sqlConfig);
+            const request = new sql.Request();
+
+            const result = await request
+                .input('username', sql.NVarChar, username)
+                .query('SELECT user_id FROM users WHERE username = @username');
+
+            return result.recordset.length > 0 ? result.recordset[0].user_id : null;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     }
 }
 

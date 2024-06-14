@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const userController = require('../controllers/user.controller');
 const jwtVerification = require('../middleware/jwtVerification')
+const groupChatController = require('../controllers/groupChat.controller')
 
 router.get('/profile', jwtVerification, userController.getYourProfile)
 router.put('/profile/edit', jwtVerification, userController.updateUserProfile)
@@ -14,5 +15,9 @@ router.put('/settings/password', jwtVerification, userController.updateUserPassw
 
 
 router.get('/search', userController.getUserByName);
+
+router.get('/message', groupChatController.getAllUserGroup)
+router.get('/message/:groupId', groupChatController.getGroupMessages)
+router.post('/message/:groupId', groupChatController.postMessage)
 
 module.exports = router
