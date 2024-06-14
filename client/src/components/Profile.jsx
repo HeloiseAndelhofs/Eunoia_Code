@@ -1,5 +1,5 @@
 import React from "react";
-import edit from "../assets/edit.svg"
+import editUser from "../assets/edit-user.svg"
 import styles from '../css_module/Dashboard.module.css'
 import { Link } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ const Profile = ({profileData}) => {
                         <div className={styles.profileInfo}>
                             <h2>{profileData.user.username}</h2>
                             <Link to={'/eunoia/profile/edit'}>
-                                <img src={edit} alt="edit" />
+                                <img src={editUser} alt="edit" />
                             </Link>
                         </div>
                         <div className={styles.profileDescription}>

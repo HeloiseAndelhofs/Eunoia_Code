@@ -2,9 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import NoAuthNav from "../components/NoAuthNav";
+import { useAuth } from '../AuthContext';
+import socket from '../socket'
+
 
 
 const Login = () => {
+
+    const { login } = useAuth()
 
     const [ formData, setFormData ] = useState({
         "username" : '',
@@ -43,9 +48,13 @@ const Login = () => {
             }, {
                 withCredentials: true
             })
+  
 
-            console.log(result);
-            navigate('/eunoia/profile')
+            if (result.status === 200) {
+                socket.connect()
+                login()
+                navigate('/eunoia/profile')
+            }
 
         } catch (error) {
             console.error("There was an error!", error);

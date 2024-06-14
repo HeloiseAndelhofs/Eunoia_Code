@@ -7,32 +7,11 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Eunoia from './pages/Eunoia';
 import Edit from './pages/Edit';
+import PrivateMessage from './pages/PrivateMessage'
+import AllPrivateMessage from './pages/AllPrivateMessage'
 import './App.css';
-import socket from './socket';
-import { useAuth } from './AuthContext';
 
 function App() {
-    const { isAuthenticated } = useAuth();
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            socket.connect();
-
-            socket.on('connect', () => {
-                console.log('HELLOOOOOOOOO');
-            });
-
-            socket.on('disconnect', () => {
-                console.log('Disconnected from Socket.IO server');
-            });
-
-            return () => {
-                socket.off('connect');
-                socket.off('disconnect');
-                socket.disconnect();
-            };
-        }
-    }, [isAuthenticated]);
 
     const router = createBrowserRouter([
         {
@@ -62,6 +41,14 @@ function App() {
         {
             path: '/eunoia/profile/edit',
             element: <Edit />
+        },
+        {
+            path : '/eunoia/message',
+            element : <AllPrivateMessage />
+        },
+        {
+            path : '/eunoia/message/:groupName',
+            element : <PrivateMessage />
         }
     ]);
 

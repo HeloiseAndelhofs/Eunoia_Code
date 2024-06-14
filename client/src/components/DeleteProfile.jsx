@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from 'axios';
-import deleteImg from '../assets/delete-blanc.svg';
+import deleteImg from '../assets/delete-user.svg';
 import styles from '../css_module/Settings.module.css';
 
 const DeleteProfile = ({ navigate, setError }) => {

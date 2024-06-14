@@ -7,6 +7,7 @@ import styles from "../css_module/Nav.module.css"
 import socket from '../socket'
 import { useAuth } from '../AuthContext'
 import logoutImg from '../assets/logout.svg'
+import messageImg from '../assets/message.svg'
 
 
 const AuthNav = () => {
@@ -17,8 +18,9 @@ const AuthNav = () => {
 
     useEffect(() => {
         socket.on('logout', () => {
-            console.log('HELLO');
+            console.log('HELLO from socket event nav');
             logout()
+            socket.disconnect()
             navigate('/')
         })
         return () => {
@@ -49,15 +51,20 @@ const AuthNav = () => {
             <h2 className={styles.title} >Eunoia</h2>
             </>
             <ul className={styles.ul} >
+                <li className={styles.li}>
+                    <button type="button" onClick={logoutFnc}>
+                        <img src={logoutImg} alt="logout" className={styles.img}/>
+                    </button>
+                </li>
                 <li className={styles.li} >
                     <Link to="/eunoia/profile" className={styles.link}>
                         <img src={user} alt="user logo" className={styles.img} />
                     </Link>
                 </li>
                 <li className={styles.li}>
-                    <button type="button" onClick={logoutFnc}>
-                        <img src={logoutImg} alt="logout" className={styles.img}/>
-                    </button>
+                    <Link to='/eunoia/message' className={styles.link}>
+                        <img src={messageImg} alt="message" className={styles.img} />
+                    </Link>
                 </li>
                 <li className={styles.li}>
                     <Link to="/eunoia/settings" className={styles.link}>

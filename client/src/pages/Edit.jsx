@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import AuthNav from "../components/AuthNav.jsx";
 import styles from '../css_module/UpdateProfile.module.css';
-import deleteImg from '../assets/delete-blanc.svg'
+import deleteImg from '../assets/trash.svg'
 
 const Edit = () => {
     // const [profileData, setProfileData] = useState(null)
@@ -152,7 +152,7 @@ const Edit = () => {
                                 <button type="button" onClick={(e) => handleRemovePref(index)}><img src={deleteImg} alt="delete" /></button>
                             </div>
                         ))}
-                        <button type="button" onClick={handleAddPreference}>Ajouter une préférence</button>
+                        <button type="button" id="addPref" onClick={handleAddPreference}>Ajouter une préférence</button>
                     </div>
                     <button type="submit">Mettre à jour</button>
                 </form>
