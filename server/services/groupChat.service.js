@@ -41,6 +41,8 @@ const groupChatService = {
         try {
             await sql.connect(sqlConfig);
 
+            console.log(userId);
+
             const userGroups = await new sql.Request()
                 .input('userId', sql.Int, userId)
                 .query(`
@@ -50,7 +52,8 @@ const groupChatService = {
                     WHERE gm.user_id = @userId
                 `);
 
-            return userGroups.recordset;
+                console.log(userGroups.recordset[0]);
+            return userGroups.recordset[0];
 
         } catch (error) {
             console.error(error);

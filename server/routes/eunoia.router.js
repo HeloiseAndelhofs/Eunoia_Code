@@ -16,8 +16,9 @@ router.put('/settings/password', jwtVerification, userController.updateUserPassw
 
 router.get('/search', userController.getUserByName);
 
-router.get('/message', groupChatController.getAllUserGroup)
-router.get('/message/:groupId', groupChatController.getGroupMessages)
-router.post('/message/:groupId', groupChatController.postMessage)
+router.post('/createGroup', jwtVerification, groupChatController.createGroup)
+router.get('/message', jwtVerification, groupChatController.getAllUserGroup)
+router.get('/message/:groupId', jwtVerification, groupChatController.getGroupMessages)
+router.post('/message/:groupId', jwtVerification, groupChatController.postMessage)
 
 module.exports = router

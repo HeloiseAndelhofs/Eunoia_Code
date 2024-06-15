@@ -1,3 +1,6 @@
+//page avec la discussion. postMessage, getAllMessage
+
+
 import React, { useState, useEffect } from "react";
 import socket from '../socket'
 import { useAuth } from '../AuthContext'
