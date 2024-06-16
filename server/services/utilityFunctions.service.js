@@ -1,6 +1,7 @@
 const sql = require('mssql')
 const sqlConfig = require('../database')
 const { login } = require('./userService')
+const bcrypt = require('bcrypt')
 
 utilityFuncService = {
 
@@ -65,11 +66,13 @@ utilityFuncService = {
             const checkUserReq = new sql.Request();
             const checkUser = await checkUserReq
                 .input('username', sql.NVarChar, username)
-                .query('SELECT username, email, password, description, avatar_url, created_at FROM users WHERE username = @username');
+                .query('SELECT user_id, username, email, hashedPassword, description, avatar_url, created_at FROM users WHERE username = @username');
         
             if (checkUser.recordset.length > 0) {
                 const user = checkUser.recordset[0];
-                const passwordOK = await bcrypt.compare(password, user.password);
+                console.log("USER" + JSON.stringify(user));
+                console.log("PASSWORD " + user.hashedPassword);
+                const passwordOK = await bcrypt.compare(password, user.hashedPassword);
                 if (passwordOK) {
                     return user;
                 } else {
@@ -78,8 +81,8 @@ utilityFuncService = {
             }  
             
         } catch (error) {
-            
-            throw new Error(`Aucun utilisateur n'a été trouvé.`);
+            console.error("ERREUR", error);
+            throw new Error(`Aucun utilisateur n'a été trouvé.`, error);
         }
     },
     selectUserById : async (userId, transaction) => {
@@ -91,6 +94,8 @@ utilityFuncService = {
             const selectUser = await selectUserReq
                                 .input('userId', sql.Int, userId)
                                 .query('SELECT * FROM users WHERE user_id = @userId')
+
+            console.log(userId);
 
             if (selectUser.recordset.length > 0) {
                 console.log(selectUser.recordset[0]);

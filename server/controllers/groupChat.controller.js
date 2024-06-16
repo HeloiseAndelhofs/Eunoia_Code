@@ -35,13 +35,13 @@ const groupChatController = {
 
     getAllUserGroup : async (req, res) => {
         try {
-            const userId = req.cookies.userId
+            const userId = req.payload.userId
 
             console.log(userId);
             const allUserGroup = await groupChatService.getAllUserGroup(userId)
 
             if (allUserGroup) {
-                return res.status(200).json({userGroup : allUserGroup})
+                return res.status(200).json(allUserGroup)
             }
 
             return res.status(404).json({message : 'Nous n\'avons pas trouvé de discussion associées à votre compte'})
@@ -55,9 +55,9 @@ const groupChatController = {
         try {
             const groupId = req.params.groupId
 
-            const message =  await groupChatService.getGroupMessages(groupId)
+            const data =  await groupChatService.getGroupMessages(groupId)
 
-            return res.status(200).json({message})
+            return res.status(200).json(data)
         } catch (error) {
             console.error(error);
             return res.status(500).json({message : 'Erreur lors de la récupération des messages', erreur : error})

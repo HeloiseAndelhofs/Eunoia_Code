@@ -36,6 +36,7 @@ const userService = {
                 }
             } else {
                 if(username && password) {
+                    console.log(username, password);
                     return await utilityFunc.checkUserByUsernameAndPassword(username, password)
                 } else {
                     throw new Error(`Aucun utilisateur n'a été trouvé.`);
@@ -158,6 +159,7 @@ const userService = {
                 if (prefResult.recordset.length > 0) {
 
                     const userResponse = {
+                        userId : user.user_id,
                         username: user.username,
                         description: user.description,
                         avatar_url: user.avatar_url,

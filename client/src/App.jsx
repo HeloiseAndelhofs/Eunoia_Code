@@ -7,8 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Eunoia from './pages/Eunoia';
 import Edit from './pages/Edit';
-import PrivateMessage from './pages/PrivateMessage'
-import AllUserGroup from './pages/AllUserGroup'
+import PrivateMessage from './pages/messages/PrivateMessage'
+import AllUserGroup from './pages/messages/AllUserGroup'
 import './App.css';
 
 function App() {
@@ -47,7 +47,7 @@ function App() {
             element : <AllUserGroup />
         },
         {
-            path : '/eunoia/message/:groupName',
+            path : '/eunoia/message/:groupId',
             element : <PrivateMessage />
         }
     ]);

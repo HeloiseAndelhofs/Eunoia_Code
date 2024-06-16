@@ -46,7 +46,7 @@ const groupChatService = {
             const userGroups = await new sql.Request()
                 .input('userId', sql.Int, userId)
                 .query(`
-                    SELECT gc.name 
+                    SELECT gc.name, gc.group_chat_id
                     FROM group_chat gc
                     INNER JOIN group_members gm ON gc.group_chat_id = gm.group_chat_id
                     WHERE gm.user_id = @userId
@@ -75,7 +75,15 @@ const groupChatService = {
                     ORDER BY pm.send_at ASC
                 `);
 
-            return messages.recordset;
+            const group = await new sql.Request()
+                    .input('groupId', sql.Int, groupId)
+                    .query(`
+                        SELECT name FROM group_chat
+                        WHERE group_chat_id = @groupId
+                        `)
+            
+
+            return {messages : messages.recordset, name : group.recordset};
 
         } catch (error) {
             console.error(error);

@@ -18,6 +18,8 @@ const Dashboard = () => {
                 })
 
                 setProfileData(result.data)
+                // console.log(result.data.user.userId);
+                localStorage.setItem('userId', result.data.user.userId)
             } catch (error) {
                 console.error(error);
                 setError(error.response ? error.response.data.message : error.message);
@@ -28,7 +30,7 @@ const Dashboard = () => {
 
 
     if (error) {
-        return <p className={styles.errorMessage}>Erreur : {error}</p>;
+        return <p>Erreur : {error}</p>;
     }
 
     return (

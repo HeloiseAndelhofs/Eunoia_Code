@@ -5,15 +5,15 @@ const loginValidators = yup.object().shape({
         .min(1).max(50)
         .when('tokenAccepted', {
             is: false,
-            then: yup.string().required(),
-            otherwise: yup.string().notRequired(),
+            then: () => yup.string().required(),
+            otherwise: () => yup.string().notRequired(),
         }),
     password: yup.string()
         .min(1).max(100)
         .when('tokenAccepted', {
             is: false,
-            then: yup.string().required(),
-            otherwise: yup.string().notRequired(),
+            then: () => yup.string().required(),
+            otherwise: () => yup.string().notRequired(),
         }),
     tokenAccepted: yup.boolean()
         .default(false)

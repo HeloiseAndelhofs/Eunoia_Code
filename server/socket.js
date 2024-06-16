@@ -31,6 +31,7 @@ const configureSocketIo = (server) => {
             // Enregistrer le message dans la base de données
             try {
                 const savedMessage = await groupChatService.postMessage({ content, groupId, sender });
+                console.log('HELLO HELLO HELLO');
                 io.to(groupId).emit('newPrivateMessage', savedMessage);
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message privé:', error);

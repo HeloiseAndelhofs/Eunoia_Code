@@ -22,6 +22,7 @@ const userController = {
                 try {
                     
                     const payload = jwt.verify(token, process.env.JWT_SECRET)
+                    console.log(payload.userId, payload);
                     const user = await utilityFunc.selectUserById(payload.userId)
 
                     if (user) {
@@ -52,18 +53,21 @@ const userController = {
              }
 
             let tokenStatus = await  utilityFunc.tokenStatus(username)
-
+             console.log(tokenStatus);
             const tokenStatusForm = tokenAccepted
 
             if (tokenStatus !== tokenStatusForm) {
                 tokenStatus = await utilityFunc.tokenStatusUpdate(tokenStatusForm, username) 
                 // console.log('token status : ' + tokenStatus);
             }
+            console.log(tokenStatus);
+
 
             const payload = {
                 userId: user.user_id,
                 email: user.email,
                 username: user.username,
+                newToken: true
             }
             const option = {
                 expiresIn :'9d'
