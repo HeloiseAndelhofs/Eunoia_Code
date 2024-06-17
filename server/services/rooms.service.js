@@ -55,6 +55,35 @@ const roomsService = {
             console.error("[getRoomMessages] Error getting group messages:", error.message);
             throw error;
         }
+    },
+
+    createRoom : async (name, description, category) => {
+        try {
+            await sql.connect(sqlConfig);
+            const request = new sql.Request();
+            const result = await request
+                .input('name', sql.NVarChar, name)
+                .input('description', sql.NVarChar, description)
+                .input('category', sql.NVarChar, category)
+                .input('created_at', sql.Date, new Date())
+                .query('INSERT INTO rooms (name, description, category, created_at) VALUES (@name, @description, @category, @created_at); SELECT SCOPE_IDENTITY() as room_id');
+            return result.recordset[0].room_id;
+        } catch (error) {
+            console.error("[createRoom] Error creating room:", error.message);
+            throw error;
+        }
+    },
+
+    getAllRooms : async () => {
+        try {
+            await sql.connect(sqlConfig);
+            const request = new sql.Request();
+            const result = await request.query('SELECT * FROM rooms');
+            return result.recordset;
+        } catch (error) {
+            console.error("[getAllRooms] Error getting all rooms:", error.message);
+            throw error;
+        }
     }
 
 }

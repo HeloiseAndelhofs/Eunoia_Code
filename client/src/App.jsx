@@ -9,6 +9,7 @@ import Eunoia from './pages/Eunoia';
 import Edit from './pages/Edit';
 import PrivateMessage from './pages/messages/PrivateMessage'
 import AllUserGroup from './pages/messages/AllUserGroup'
+import CreateGroup from './pages/messages/CreateGroup';
 import './App.css';
 
 function App() {
@@ -49,6 +50,10 @@ function App() {
         {
             path : '/eunoia/message/:groupId',
             element : <PrivateMessage />
+        },
+        {
+            path : '/eunoia/message/createGroup',
+            element : <CreateGroup />
         }
     ]);
 

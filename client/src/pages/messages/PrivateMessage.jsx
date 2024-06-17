@@ -44,7 +44,6 @@ const Message = () => {
         
         // Écouter les nouveaux messages
         socket.on('receivePrivateMessage', (message) => {
-            console.log('SALUTTTTTTT');
             console.log('Received newPrivateMessage:', message);
             console.log('Message socket ' + message);
             setMessages((prevMessages) => {

@@ -14,7 +14,8 @@ const groupChatService = {
                 .input('name', sql.NVarChar, name)
                 .query('INSERT INTO group_chat (name) OUTPUT INSERTED.group_chat_id VALUES (@name)');
 
-            const groupId = group.recordset[0].group_chat_id;
+                const groupId = group.recordset[0].group_chat_id;
+                console.log('GROUP ID !!!!!!!!!! ' + groupId);
 
             for (const memberId of membersIds) {
                 await new sql.Request(transaction)

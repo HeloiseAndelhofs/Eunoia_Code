@@ -32,11 +32,7 @@ const configureSocketIo = (server) => {
             try {
                 const savedMessage = await groupChatService.postMessage({ content, groupId, sender });
                 console.log(`Saved message: ${savedMessage.content}`);
-                // io.to(groupId).emit('privateMessage', () => {
-                //     console.log('GROUPE ID ' + groupId);
-                //     console.log('MESSAGE ' + message);
-                //     console.log('SAVED MESSAGE ' + savedMessage.content);
-                // });
+          
                 console.log(`${savedMessage} a été envoyé au groupe ${groupName}`);
                 console.log(savedMessage);
 
