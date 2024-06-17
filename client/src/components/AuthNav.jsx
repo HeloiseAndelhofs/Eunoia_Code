@@ -8,6 +8,7 @@ import socket from '../socket'
 import { useAuth } from '../AuthContext'
 import logoutImg from '../assets/logout.svg'
 import messageImg from '../assets/message.svg'
+import roomsImg from '../assets/rooms.svg'
 
 
 const AuthNav = () => {
@@ -59,6 +60,11 @@ const AuthNav = () => {
                 <li className={styles.li} >
                     <Link to="/eunoia/profile" className={styles.link}>
                         <img src={user} alt="user logo" className={styles.img} />
+                    </Link>
+                </li>
+                <li className={styles.li}>
+                    <Link to='/eunoia/rooms' className={styles.link}>
+                        <img src={roomsImg} alt="salons" className={styles.img} />
                     </Link>
                 </li>
                 <li className={styles.li}>

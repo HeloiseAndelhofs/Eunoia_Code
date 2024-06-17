@@ -24,7 +24,7 @@ router.post('/message/:groupId', jwtVerification, groupChatController.postMessag
 
 
 router.get('/rooms', jwtVerification, roomsController.getAllRooms)
-router.post('/createRoom', jwtVerification, roomsController.createRoom)
+router.post('/rooms/createRoom', jwtVerification, roomsController.createRoom)
 router.get('/rooms/:roomId', jwtVerification, roomsController.getRoomMessages)
 router.post('/rooms/:roomId', jwtVerification, roomsController.sendMessageToRoom)
 router.post('/rooms', jwtVerification, roomsController.joinRoom)

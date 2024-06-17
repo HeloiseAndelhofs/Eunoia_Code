@@ -32,7 +32,7 @@ const AllRooms = () => {
             <h1>Salons publics</h1>
             <div>
                 <h2>Nouveau salon</h2>
-                <Link to={'/eunoia/room/create'}>
+                <Link to={'/eunoia/rooms/createRoom'}>
                     <img src={add} alt="create room" />
                 </Link>
             </div>

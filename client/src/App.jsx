@@ -10,6 +10,7 @@ import Edit from './pages/Edit';
 import PrivateMessage from './pages/messages/PrivateMessage'
 import AllUserGroup from './pages/messages/AllUserGroup'
 import CreateGroup from './pages/messages/CreateGroup';
+import CreateRoom from './pages/rooms/CreateRoom';
 import AllRooms from './pages/rooms/AllRooms';
 import './App.css';
 
@@ -59,6 +60,10 @@ function App() {
         {
             path : '/eunoia/rooms',
             element : <AllRooms />
+        },
+        {
+            path : '/eunoia/rooms/createRoom',
+            element : <CreateRoom />
         }
     ]);
 
