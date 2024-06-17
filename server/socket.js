@@ -11,35 +11,43 @@ const configureSocketIo = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log(`${socket.id} connected`);
+        console.log(`${socket.id} connecté`);
         socket.emit('connection');
 
-        socket.on('joinGroup', (groupId) => {
-            socket.join(groupId);
+        socket.on('joinGroup', (groupName) => {
+            socket.join(groupName);
             socket.emit('joinGroup');
-            console.log(`${socket.id} joined group ${groupId}`);
+            console.log(`${socket.id} a rejoint le groupe ${groupName}`);
         });
 
-        socket.on('leaveGroup', (groupId) => {
-            socket.leave(groupId);
-            console.log(`${socket.id} left group ${groupId}`);
+        socket.on('leaveGroup', (groupName) => {
+            socket.leave(groupName);
+            console.log(`${socket.id} left group ${groupName}`);
         });
 
         socket.on('privateMessage', async (message) => {
-            const { content, groupId, sender } = message;
+            const { content, groupName, sender, groupId } = message;
 
             // Enregistrer le message dans la base de données
             try {
                 const savedMessage = await groupChatService.postMessage({ content, groupId, sender });
-                console.log('HELLO HELLO HELLO');
-                io.to(groupId).emit('newPrivateMessage', savedMessage);
+                console.log(`Saved message: ${savedMessage.content}`);
+                // io.to(groupId).emit('privateMessage', () => {
+                //     console.log('GROUPE ID ' + groupId);
+                //     console.log('MESSAGE ' + message);
+                //     console.log('SAVED MESSAGE ' + savedMessage.content);
+                // });
+                console.log(`${savedMessage} a été envoyé au groupe ${groupName}`);
+                console.log(savedMessage);
+
+                io.emit('receivePrivateMessage', savedMessage)
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message privé:', error);
             }
         });
 
         socket.on('logout', () => {
-            console.log(`${socket.id} logout`);
+            console.log(`${socket.id} déconnecté`);
             socket.emit('logout');
         });
     });

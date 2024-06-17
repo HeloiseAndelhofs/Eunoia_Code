@@ -34,16 +34,37 @@ const Message = () => {
         getMessages();
 
         // Rejoindre la salle du groupe
-        socket.emit('joinGroup', groupId);
+        socket.emit('joinGroup', groupName);
 
+        
+        
+        socket.on('connect', () => {
+            console.log('Socket connected:', socket.id);
+        });
+        
         // Écouter les nouveaux messages
-        socket.on('newPrivateMessage', (message) => {
-            setMessages((prevMessages) => [...prevMessages, message]);
+        socket.on('receivePrivateMessage', (message) => {
+            console.log('SALUTTTTTTT');
+            console.log('Received newPrivateMessage:', message);
+            console.log('Message socket ' + message);
+            setMessages((prevMessages) => {
+                const messageExists = prevMessages.some(msg => msg.private_message_id === message.private_message_id);
+                if (!messageExists) {
+                    return [...prevMessages, message];
+                } else {
+                    return prevMessages;
+                }
+            });
+        });
+
+
+        socket.on('disconnect', () => {
+            console.log('Socket disconnected:', socket.id);
         });
 
         // Quitter la salle lorsque le composant est démonté
         return () => {
-            socket.emit('leaveGroup', groupId);
+            socket.emit('leaveGroup', groupName);
             socket.off('newPrivateMessage');
         };
     }, [groupId]);
@@ -52,8 +73,9 @@ const Message = () => {
         try {
             const message = {
                 content: newMessage,
-                groupId: parseInt(groupId, 10),
-                sender: userId
+                groupName: groupName,
+                sender: userId,
+                groupId: groupId
             };
             // Envoyer le message via socket
             socket.emit('privateMessage', message);
