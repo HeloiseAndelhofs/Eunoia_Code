@@ -52,49 +52,13 @@ const configureSocketIo = (server) => {
                 console.log(`${formattedMessage} a été envoyé au groupe ${groupName}`);
                 console.log(formattedMessage);
 
-                io.emit('receivePrivateMessage', formattedMessage)
+                io.to(groupName).emit('receivePrivateMessage', formattedMessage)
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message privé:', error);
             }
         });
 
         //fin group chat !!
-
-
-        //eunoia !!
-        // socket.on('joinEunoia', ({ userId, roomId }) => {
-        //     socket.join(roomId);
-        //     users[socket.id] = userId;
-        //     socket.emit('userConnected', userId);
-        // });
-    
-        // socket.on('eunoiaMessage', async ( message ) => {
-        //     const { content, sender, roomId } = message;
-
-        //     console.log(content, sender, roomId + ' IUEZGHFDEIUZDFGZEAIUDFHEIUZGDFLAUZEGI');
-        //     try {
-        //         const savedMessage = await roomsService.sendMessageToRoom( content, roomId, sender );
-
-        //         const user = await utilityFuncService.selectUserById(sender)
-        //         const username = user.username
-
-        //         const formattedMessage = {
-        //             public_message_id: savedMessage.public_message_id,
-        //             content: savedMessage.content,
-        //             send_at: savedMessage.send_at,
-        //             room_id: savedMessage.room_id,
-        //             user_id: savedMessage.user_id,
-        //             username: username
-        //         };
-
-        //         io.emit('receiveEunoiaMessage', formattedMessage);
-        //         console.log({savedMessage, username});
-        //     } catch (error) {
-        //         console.error('Erreur lors de l\'enregistrement du message public (Eunoia):', error);
-        //     }
-        // });
-
-        //fin eunoia
 
         //rooms
         socket.on('joinRoom', (roomName) => {
@@ -103,7 +67,7 @@ const configureSocketIo = (server) => {
         })
 
         socket.on('publicMessage', async (message) => {
-            const { content, sender, roomId } = message;
+            const { content, sender, roomId, roomName } = message;
 
             try {
                 const savedMessage = await roomsService.sendMessageToRoom( content, roomId, sender );
@@ -119,7 +83,7 @@ const configureSocketIo = (server) => {
                     user_id: savedMessage.user_id,
                     username: username
                 }
-                io.emit('publicMessage', result)
+                io.to(roomName).emit('publicMessage', result)
                 console.log(result);
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message public:', error);

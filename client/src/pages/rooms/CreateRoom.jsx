@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import AuthNav from '../../components/AuthNav';
 
 const CreateRoom = () => {
     const [name, setName] = useState('');
@@ -31,7 +32,11 @@ const CreateRoom = () => {
         }
     };
 
+    
     return (
+        <>
+        <AuthNav />
+
         <div>
             <h1>Créer une nouvelle salle</h1>
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -67,6 +72,7 @@ const CreateRoom = () => {
                 <button type="submit">Créer</button>
             </form>
         </div>
+        </>
     );
 };
 

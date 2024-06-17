@@ -3,6 +3,7 @@ import axios from 'axios';
 import AuthNav from '../../components/AuthNav';
 import { Link } from "react-router-dom";
 import add from '../../assets/add.svg';
+import styles from '../../css_module/Messages.module.css'
 
 const AllRooms = () => {
     const [rooms, setRooms] = useState([]);
@@ -26,31 +27,52 @@ const AllRooms = () => {
         getRooms();
     }, []); // Tableau de dépendances vide pour ne pas exécuter le useEffect en boucle
 
+        const joinRoom = async (roomId) => {
+        if (window.confirm("Voulez-vous vraiment rejoindre ce salon ?")) {
+            try {
+                const response = await axios.post('http://localhost:3000/api/eunoia/rooms', {
+                    roomId: roomId
+                }, {
+                    withCredentials: true
+                });
+
+                alert("Vous avez rejoint le salon !");
+            } catch (error) {
+                console.error("Error joining room:", error);
+                setError(error.response ? error.response.data.message : error.message);
+            }
+        }
+    };
+
     return (
         <>
             <AuthNav />
             <h1>Salons publics</h1>
             <div>
-                <h2>Nouveau salon</h2>
-                <Link to={'/eunoia/rooms/createRoom'}>
+                <Link to={'/eunoia/rooms/createRoom'} className={styles.link}>
                     <img src={add} alt="create room" />
+                    Nouveau salon
                 </Link>
             </div>
             
-            {error && <p>Erreur : {error}</p>}
-            {rooms.length > 0 ? (
-                <ul>
-                    {rooms.map((room) => (
-                        <li key={room.room_id}>
-                            <Link to={`/eunoia/rooms/${room.room_id}`}>
-                                {room.name}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>Il n'y a encore aucun salon.</p>
-            )}
+            {error && <p className={styles.error}>Erreur : {error}</p>}
+            <div className={styles.container}>
+                {rooms.length > 0 ? (
+                    <ul>
+                        {rooms.map((room) => (
+                            <li key={room.room_id}>
+                                <Link to={`/eunoia/rooms/${room.room_id}`} className={styles.link}>
+                                    {room.name}
+                                </Link>
+                                <p>{room.description}</p>
+                                <p>{room.category}</p>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>Il n'y a encore aucun salon.</p>
+                )}
+            </div>
         </>
     );
 };

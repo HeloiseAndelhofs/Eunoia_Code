@@ -3,6 +3,7 @@ import socket from '../../socket';
 import axios from 'axios';
 import AuthNav from '../../components/AuthNav';
 import { useParams } from "react-router-dom";
+import styles from '../../css_module/Messages.module.css'
 
 const Message = () => {
     const { groupId } = useParams();
@@ -62,11 +63,11 @@ const Message = () => {
         });
 
         // Quitter la salle lorsque le composant est démonté
-        return () => {
-            socket.emit('leaveGroup', groupName);
-            socket.off('newPrivateMessage');
-        };
-    }, [groupId]);
+        // return () => {
+        //     socket.emit('leaveGroup', groupName);
+        //     socket.off('newPrivateMessage');
+        // };
+    }, [groupId, groupName]);
 
     const postMessage = async () => {
         try {
@@ -85,23 +86,35 @@ const Message = () => {
         }
     };
 
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+    
+        const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false };
+    
+        const formattedDate = date.toLocaleDateString('fr-FR', optionsDate);
+        const formattedTime = date.toLocaleTimeString('fr-FR', optionsTime);
+    
+        return `${formattedDate} ${formattedTime}`;
+    };
+
     return (
         <>
             <AuthNav />
             <h1>{groupName}</h1>
-            {error && <p>{error}</p>}
-            <div>
+            {error && <p className={styles.error}>{error}</p>}
+            <div className={styles.container}>
                 <ul>
                     {messages.map((message) => (
-                        <li key={message.private_message_id}>
+                        <li key={message.private_message_id} className={styles.messageContent}>
                             {message.username}: {message.content}
-                            <p>{message.send_at}</p>
+                            <p className={styles.messageTime}>{formatDate((message.send_at))}</p>
                         </li>
                     ))}
                 </ul> 
             </div> 
             {/* tester si pas de messages erreur !!!!! */}
-            <div>
+            <div className={styles.inputContainer}>
                 <input
                     type="text"
                     placeholder="message"

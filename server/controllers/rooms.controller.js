@@ -21,7 +21,7 @@ const roomsController =  {
         try {
             console.log('PUTAIN DE MERDE JE VAIS ME TUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             // console.log('AAAAAAAAAAAAAAAAAAA ' + req.body.roomId, req.body.sender, req.body.content);
-            const { content, roomId, sender } = req.body
+            const { content, roomId, sender} = req.body
 
 
             const messageResponse = await roomsService.sendMessageToRoom(content, roomId, sender)

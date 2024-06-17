@@ -62,11 +62,24 @@ console.log(pathname);
             });
         });
 
-        return () => {
-            socket.emit('leaveRoom', roomName);
-            socket.off('newPublicMessage');
-        }
-    }, [roomId])
+        // return () => {
+        //     socket.emit('leaveRoom', roomName);
+        //     socket.off('newPublicMessage');
+        // }
+    }, [roomId, roomName])
+
+
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+    
+        const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false };
+    
+        const formattedDate = date.toLocaleDateString('fr-FR', optionsDate);
+        const formattedTime = date.toLocaleTimeString('fr-FR', optionsTime);
+    
+        return `${formattedDate} ${formattedTime}`;
+    };
 
     const postMessage = async () => {
         try {
@@ -97,7 +110,7 @@ console.log(pathname);
                     {messages.map((message) => (
                         <li key={message.public_message_id}>
                             {message.username} : {message.content}
-                            <p>{message.send_at}</p>
+                            <p>{formatDate((message.send_at))}</p>
                         </li>
                     ))}
                 </ul>
