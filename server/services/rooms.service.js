@@ -27,16 +27,19 @@ const roomsService = {
         }
     },
 
-    sendMessageToRoom : async (roomId, senderId, message) => {
+    sendMessageToRoom : async (content, roomId, sender) => {
         try {
             await sql.connect(sqlConfig);
             const request = new sql.Request();
-            await request
+            const result = await request
                 .input('roomId', sql.Int, roomId)
-                .input('sender', sql.Int, senderId)
-                .input('content', sql.NVarChar, message)
+                .input('sender', sql.Int, sender)
+                .input('content', sql.NVarChar, content)
                 .input('send_at', sql.SmallDateTime, new Date())
-                .query('INSERT INTO public_messages (room_id, user_id, content, send_at) VALUES (@group_chat_id, @sender, @content, @send_at)');
+                .query('INSERT INTO public_messages (room_id, user_id, content, send_at) OUTPUT INSERTED.* VALUES (@roomId, @sender, @content, @send_at)');
+
+                console.log(result.recordset[0]);
+                return result.recordset[0]
         } catch (error) {
             console.error("[sendMessageToRoom] Error sending message:", error.message);
             throw error;

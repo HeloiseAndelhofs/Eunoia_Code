@@ -19,9 +19,12 @@ const roomsController =  {
     sendMessageToRoom : async (req, res) => {
 
         try {
-            const {roomId, senderId, message} = req.body
+            console.log('PUTAIN DE MERDE JE VAIS ME TUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            // console.log('AAAAAAAAAAAAAAAAAAA ' + req.body.roomId, req.body.sender, req.body.content);
+            const { content, roomId, sender } = req.body
 
-            const messageResponse = await roomsService.sendMessageToRoom(roomId, senderId, message)
+
+            const messageResponse = await roomsService.sendMessageToRoom(content, roomId, sender)
 
             return res.status(200).json(messageResponse)
         } catch (error) {
@@ -33,7 +36,7 @@ const roomsController =  {
 
     getRoomMessages : async (req, res) => {
         try {
-            const roomId = req.params
+            const roomId = req.params.roomId
 
             const response = await roomsService.getRoomMessages(roomId)
 

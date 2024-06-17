@@ -94,7 +94,7 @@ const Message = () => {
                 <ul>
                     {messages.map((message) => (
                         <li key={message.private_message_id}>
-                            {message.sender_username}: {message.content}
+                            {message.username}: {message.content}
                             <p>{message.send_at}</p>
                         </li>
                     ))}

@@ -22,6 +22,7 @@ router.get('/message', jwtVerification, groupChatController.getAllUserGroup)
 router.get('/message/:groupId', jwtVerification, groupChatController.getGroupMessages)
 router.post('/message/:groupId', jwtVerification, groupChatController.postMessage)
 
+
 router.get('/rooms', jwtVerification, roomsController.getAllRooms)
 router.post('/createRoom', jwtVerification, roomsController.createRoom)
 router.get('/rooms/:roomId', jwtVerification, roomsController.getRoomMessages)

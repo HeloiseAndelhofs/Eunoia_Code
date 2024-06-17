@@ -1,6 +1,7 @@
 const socketIo = require('socket.io');
-const roomsController = require('./controllers/rooms.controller');
 const groupChatService = require('./services/groupChat.service');
+const roomsService = require('./services/rooms.service');
+const utilityFuncService = require('./services/utilityFunctions.service')
 
 const configureSocketIo = (server) => {
     const io = socketIo(server, {
@@ -9,6 +10,8 @@ const configureSocketIo = (server) => {
             credentials: true
         }
     });
+
+    const users = {};
 
     io.on('connection', (socket) => {
         console.log(`${socket.id} connecté`);
@@ -32,13 +35,57 @@ const configureSocketIo = (server) => {
             try {
                 const savedMessage = await groupChatService.postMessage({ content, groupId, sender });
                 console.log(`Saved message: ${savedMessage.content}`);
-          
-                console.log(`${savedMessage} a été envoyé au groupe ${groupName}`);
-                console.log(savedMessage);
 
-                io.emit('receivePrivateMessage', savedMessage)
+                const user = await utilityFuncService.selectUserById(sender)
+                const username = user.username
+          
+                const formattedMessage = {
+                    private_message_id: savedMessage.private_message_id,
+                    content: savedMessage.content,
+                    send_at: savedMessage.send_at,
+                    group_id: savedMessage.group_id,
+                    user_id: savedMessage.user_id,
+                    username: username
+                };
+
+                console.log(`${formattedMessage} a été envoyé au groupe ${groupName}`);
+                console.log(formattedMessage);
+
+                io.emit('receivePrivateMessage', formattedMessage)
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message privé:', error);
+            }
+        });
+
+        socket.on('joinEunoia', ({ userId, roomId }) => {
+            socket.join(roomId);
+            users[socket.id] = userId;
+            socket.emit('userConnected', userId);
+        });
+    
+        socket.on('publicMessage', async ( message ) => {
+            const { content, sender, roomId } = message;
+
+            console.log(content, sender, roomId + ' IUEZGHFDEIUZDFGZEAIUDFHEIUZGDFLAUZEGI');
+            try {
+                const savedMessage = await roomsService.sendMessageToRoom( content, roomId, sender );
+
+                const user = await utilityFuncService.selectUserById(sender)
+                const username = user.username
+
+                const formattedMessage = {
+                    public_message_id: savedMessage.public_message_id,
+                    content: savedMessage.content,
+                    send_at: savedMessage.send_at,
+                    room_id: savedMessage.room_id,
+                    user_id: savedMessage.user_id,
+                    username: username
+                };
+
+                io.emit('receiveEunoiaMessage', formattedMessage);
+                console.log({savedMessage, username});
+            } catch (error) {
+                console.error('Erreur lors de l\'enregistrement du message public:', error);
             }
         });
 
