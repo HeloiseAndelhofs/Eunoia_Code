@@ -17,7 +17,7 @@ const AllRooms = () => {
 
                 console.log(response.data);
 
-                setRooms(response.data); // Assurez-vous que response.data est un tableau de rooms
+                setRooms(response.data.filter((room) => room.name !== 'Eunoia')); 
             } catch (error) {
                 console.error("Error fetching rooms:", error);
                 setError(error.response ? error.response.data.message : error.message);
@@ -42,7 +42,7 @@ const AllRooms = () => {
                 <ul>
                     {rooms.map((room) => (
                         <li key={room.room_id}>
-                            <Link to={`/eunoia/room/${room.room_id}`}>
+                            <Link to={`/eunoia/rooms/${room.room_id}`}>
                                 {room.name}
                             </Link>
                         </li>

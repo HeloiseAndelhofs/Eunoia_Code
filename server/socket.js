@@ -1,7 +1,7 @@
 const socketIo = require('socket.io');
 const groupChatService = require('./services/groupChat.service');
 const roomsService = require('./services/rooms.service');
-const utilityFuncService = require('./services/utilityFunctions.service')
+const utilityFuncService = require('./services/utilityFunctions.service');
 
 const configureSocketIo = (server) => {
     const io = socketIo(server, {
@@ -17,6 +17,7 @@ const configureSocketIo = (server) => {
         console.log(`${socket.id} connecté`);
         socket.emit('connection');
 
+        // group chat !!
         socket.on('joinGroup', (groupName) => {
             socket.join(groupName);
             socket.emit('joinGroup');
@@ -57,37 +58,73 @@ const configureSocketIo = (server) => {
             }
         });
 
-        socket.on('joinEunoia', ({ userId, roomId }) => {
-            socket.join(roomId);
-            users[socket.id] = userId;
-            socket.emit('userConnected', userId);
-        });
+        //fin group chat !!
+
+
+        //eunoia !!
+        // socket.on('joinEunoia', ({ userId, roomId }) => {
+        //     socket.join(roomId);
+        //     users[socket.id] = userId;
+        //     socket.emit('userConnected', userId);
+        // });
     
-        socket.on('publicMessage', async ( message ) => {
+        // socket.on('eunoiaMessage', async ( message ) => {
+        //     const { content, sender, roomId } = message;
+
+        //     console.log(content, sender, roomId + ' IUEZGHFDEIUZDFGZEAIUDFHEIUZGDFLAUZEGI');
+        //     try {
+        //         const savedMessage = await roomsService.sendMessageToRoom( content, roomId, sender );
+
+        //         const user = await utilityFuncService.selectUserById(sender)
+        //         const username = user.username
+
+        //         const formattedMessage = {
+        //             public_message_id: savedMessage.public_message_id,
+        //             content: savedMessage.content,
+        //             send_at: savedMessage.send_at,
+        //             room_id: savedMessage.room_id,
+        //             user_id: savedMessage.user_id,
+        //             username: username
+        //         };
+
+        //         io.emit('receiveEunoiaMessage', formattedMessage);
+        //         console.log({savedMessage, username});
+        //     } catch (error) {
+        //         console.error('Erreur lors de l\'enregistrement du message public (Eunoia):', error);
+        //     }
+        // });
+
+        //fin eunoia
+
+        //rooms
+        socket.on('joinRoom', (roomName) => {
+            socket.join(roomName)
+            //socket.emmit('connection')
+        })
+
+        socket.on('publicMessage', async (message) => {
             const { content, sender, roomId } = message;
 
-            console.log(content, sender, roomId + ' IUEZGHFDEIUZDFGZEAIUDFHEIUZGDFLAUZEGI');
             try {
                 const savedMessage = await roomsService.sendMessageToRoom( content, roomId, sender );
 
                 const user = await utilityFuncService.selectUserById(sender)
                 const username = user.username
 
-                const formattedMessage = {
+                const result = {
                     public_message_id: savedMessage.public_message_id,
                     content: savedMessage.content,
                     send_at: savedMessage.send_at,
                     room_id: savedMessage.room_id,
                     user_id: savedMessage.user_id,
                     username: username
-                };
-
-                io.emit('receiveEunoiaMessage', formattedMessage);
-                console.log({savedMessage, username});
+                }
+                io.emit('publicMessage', result)
+                console.log(result);
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message public:', error);
             }
-        });
+        })
 
         socket.on('logout', () => {
             console.log(`${socket.id} déconnecté`);

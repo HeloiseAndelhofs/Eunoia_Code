@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import socket from '../../socket';
 import axios from 'axios';
-// import jwtDecode from 'jwt-decode';
 import AuthNav from '../../components/AuthNav';
 import { useParams } from "react-router-dom";
 
@@ -11,7 +10,6 @@ const Message = () => {
     const [newMessage, setNewMessage] = useState('');
     const [error, setError] = useState(null);
     const [groupName, setGroupName] = useState('');
-    // const [userId, setUserId] = useState(null);
     const userId = localStorage.getItem('userId')
 
     console.log(userId);
@@ -21,7 +19,9 @@ const Message = () => {
         const getMessages = async () => {
             try {
                 console.log(groupId);
-                const response = await axios.get(`http://localhost:3000/api/eunoia/message/${groupId}`);
+                const response = await axios.get(`http://localhost:3000/api/eunoia/message/${groupId}`, {
+                    withCredentials : true
+                });
                 setMessages(response.data.messages);
                 setGroupName(response.data.name[0].name);
                 console.log(response.data.messages);
@@ -98,8 +98,9 @@ const Message = () => {
                             <p>{message.send_at}</p>
                         </li>
                     ))}
-                </ul>
-            </div>
+                </ul> 
+            </div> 
+            {/* tester si pas de messages erreur !!!!! */}
             <div>
                 <input
                     type="text"

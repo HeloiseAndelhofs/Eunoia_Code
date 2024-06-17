@@ -5,13 +5,13 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
-import Eunoia from './pages/Eunoia';
 import Edit from './pages/Edit';
 import PrivateMessage from './pages/messages/PrivateMessage'
 import AllUserGroup from './pages/messages/AllUserGroup'
 import CreateGroup from './pages/messages/CreateGroup';
 import CreateRoom from './pages/rooms/CreateRoom';
 import AllRooms from './pages/rooms/AllRooms';
+import RoomMessages from './pages/rooms/PublicMessage';
 import './App.css';
 
 function App() {
@@ -31,7 +31,7 @@ function App() {
         },
         {
             path: "/eunoia",
-            element: <Eunoia />
+            element: <RoomMessages />
         },
         {
             path: "/eunoia/settings",
@@ -64,6 +64,10 @@ function App() {
         {
             path : '/eunoia/rooms/createRoom',
             element : <CreateRoom />
+        },
+        {
+            path : '/eunoia/rooms/:roomId',
+            element : <RoomMessages />
         }
     ]);
 

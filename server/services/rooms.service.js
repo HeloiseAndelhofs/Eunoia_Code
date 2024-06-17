@@ -50,10 +50,21 @@ const roomsService = {
         try {
             await sql.connect(sqlConfig);
             const request = new sql.Request();
-            const result = await request
+            const messagesRes = await request
                 .input('room_id', sql.Int, roomId)
                 .query('SELECT * FROM public_messages WHERE room_id = @room_id');
-            return result.recordset;
+
+            const room = await new sql.Request()
+                    .input('roomId', sql.Int, roomId)
+                    .query('SELECT name FROM rooms WHERE room_id = @roomId')
+
+                    
+                    const messages = messagesRes.recordset
+                    const roomName = room.recordset[0].name
+                    
+                    console.log(messages);
+console.log(roomName);
+            return {messages, roomName};
         } catch (error) {
             console.error("[getRoomMessages] Error getting group messages:", error.message);
             throw error;
