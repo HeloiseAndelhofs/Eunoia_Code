@@ -3,20 +3,24 @@ const sqlConfig = require('../database');
 
 const groupChatService = {
 
+    // Fonction pour créer un groupe de discussion
     createGroup: async (name, membersIds) => {
         let transaction;
         try {
+            // Connexion à la base de données
             await sql.connect(sqlConfig);
             transaction = new sql.Transaction();
             await transaction.begin();
 
+            // Insertion du nouveau groupe de discussion et récupération de l'ID généré
             const group = await new sql.Request(transaction)
                 .input('name', sql.NVarChar, name)
                 .query('INSERT INTO group_chat (name) OUTPUT INSERTED.group_chat_id VALUES (@name)');
 
-                const groupId = group.recordset[0].group_chat_id;
-                console.log('GROUP ID !!!!!!!!!! ' + groupId);
+            const groupId = group.recordset[0].group_chat_id;
+            console.log('GROUP ID !!!!!!!!!! ' + groupId);
 
+            // Ajout des membres au groupe de discussion
             for (const memberId of membersIds) {
                 await new sql.Request(transaction)
                     .input('userId', sql.Int, memberId)
@@ -28,22 +32,27 @@ const groupChatService = {
                     `);
             }
 
+            // Commit de la transaction
             await transaction.commit();
             return { groupId, name, membersIds };
 
         } catch (error) {
+            // Rollback de la transaction en cas d'erreur
             if (transaction) await transaction.rollback();
             console.error(error);
             throw error;
         }
     },
 
+    // Fonction pour récupérer tous les groupes d'un utilisateur
     getAllUserGroup: async (userId) => {
         try {
+            // Connexion à la base de données
             await sql.connect(sqlConfig);
 
             console.log(userId);
 
+            // Requête pour obtenir tous les groupes auxquels un utilisateur appartient
             const userGroups = await new sql.Request()
                 .input('userId', sql.Int, userId)
                 .query(`
@@ -53,7 +62,7 @@ const groupChatService = {
                     WHERE gm.user_id = @userId
                 `);
 
-                console.log(userGroups.recordset[0]);
+            console.log(userGroups.recordset[0]);
             return userGroups.recordset[0];
 
         } catch (error) {
@@ -62,10 +71,13 @@ const groupChatService = {
         }
     },
 
+    // Fonction pour récupérer tous les messages d'un groupe de discussion
     getGroupMessages: async (groupId) => {
         try {
+            // Connexion à la base de données
             await sql.connect(sqlConfig);
 
+            // Requête pour obtenir les messages du groupe
             const messages = await new sql.Request()
                 .input('groupId', sql.Int, groupId)
                 .query(`
@@ -76,15 +88,15 @@ const groupChatService = {
                     ORDER BY pm.send_at ASC
                 `);
 
+            // Requête pour obtenir le nom du groupe
             const group = await new sql.Request()
-                    .input('groupId', sql.Int, groupId)
-                    .query(`
-                        SELECT name FROM group_chat
-                        WHERE group_chat_id = @groupId
-                        `)
+                .input('groupId', sql.Int, groupId)
+                .query(`
+                    SELECT name FROM group_chat
+                    WHERE group_chat_id = @groupId
+                `);
             
-
-            return {messages : messages.recordset, name : group.recordset};
+            return { messages: messages.recordset, name: group.recordset };
 
         } catch (error) {
             console.error(error);
@@ -92,12 +104,15 @@ const groupChatService = {
         }
     },
 
+    // Fonction pour poster un message dans un groupe de discussion
     postMessage: async (data) => {
         try {
+            // Connexion à la base de données
             await sql.connect(sqlConfig);
 
             const { content, groupId, sender } = data;
 
+            // Insertion du message dans la base de données et récupération des informations insérées
             const result = await new sql.Request()
                 .input('content', sql.NVarChar, content)
                 .input('groupId', sql.Int, groupId)

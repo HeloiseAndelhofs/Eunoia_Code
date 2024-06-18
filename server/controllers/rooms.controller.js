@@ -1,78 +1,93 @@
-const roomsService = require('../services/rooms.service')
-const userService = require('../services/userService')
+const roomsService = require('../services/rooms.service');
+const userService = require('../services/userService');
 
-const roomsController =  {
+const roomsController = {
 
-    joinRoom : async (req, res) => {
+    // Permet à un utilisateur de rejoindre un salon
+    joinRoom: async (req, res) => {
         try {
             const { userId, roomId } = req.body;
 
-            await roomsService.joinRoom(userId, roomId)
+            // Appelle le service pour ajouter l'utilisateur au salon
+            await roomsService.joinRoom(userId, roomId);
 
-            return res.status(200).json({mesage : 'L\'utilisateur a bien rejoin le salon'})
+            // Répond avec un message de succès
+            return res.status(200).json({ message: 'L\'utilisateur a bien rejoint le salon' });
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur pour rejoindre un salon', erreur : error}) 
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur pour rejoindre un salon', erreur: error });
         }
     },
 
-    sendMessageToRoom : async (req, res) => {
-
+    // Envoie un message dans un salon
+    sendMessageToRoom: async (req, res) => {
         try {
+            // Debugging console log
             console.log('PUTAIN DE MERDE JE VAIS ME TUER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             // console.log('AAAAAAAAAAAAAAAAAAA ' + req.body.roomId, req.body.sender, req.body.content);
-            const { content, roomId, sender} = req.body
+            const { content, roomId, sender } = req.body;
 
+            // Appelle le service pour envoyer un message au salon
+            const messageResponse = await roomsService.sendMessageToRoom(content, roomId, sender);
 
-            const messageResponse = await roomsService.sendMessageToRoom(content, roomId, sender)
-
-            return res.status(200).json(messageResponse)
+            // Renvoie la réponse avec le message envoyé
+            return res.status(200).json(messageResponse);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur lors de l\'envoie du message', erreur : error}) 
-        }
-
-    },
-
-    getRoomMessages : async (req, res) => {
-        try {
-            const roomId = req.params.roomId
-
-            const response = await roomsService.getRoomMessages(roomId)
-
-            return res.status(200).json(response)
-
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({message : 'Erreur lors de la récupération des messages', erreur : error}) 
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur lors de l\'envoi du message', erreur: error });
         }
     },
 
-    createRoom : async (req, res) => {
+    // Récupère les messages d'un salon
+    getRoomMessages: async (req, res) => {
         try {
-            const {name, description, category} = req.body
+            const roomId = req.params.roomId;
 
-            const response = await roomsService.createRoom(name, description, category)
+            // Appelle le service pour obtenir les messages du salon
+            const response = await roomsService.getRoomMessages(roomId);
 
-            return res.status(200).json(response)
+            // Renvoie les messages du salon
+            return res.status(200).json(response);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur lors de la création du salon', erreur : error})  
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur lors de la récupération des messages', erreur: error });
         }
     },
 
-    getAllRooms : async (req, res) => {
+    // Crée un nouveau salon
+    createRoom: async (req, res) => {
         try {
-            const response = await roomsService.getAllRooms()
+            const { name, description, category } = req.body;
 
-            return res.status(200).json(response)
+            // Appelle le service pour créer un nouveau salon
+            const response = await roomsService.createRoom(name, description, category);
+
+            // Renvoie la réponse avec le salon créé
+            return res.status(200).json(response);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur lors de la récupération des salons', erreur : error}) 
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur lors de la création du salon', erreur: error });
+        }
+    },
+
+    // Récupère tous les salons
+    getAllRooms: async (req, res) => {
+        try {
+            // Appelle le service pour obtenir la liste de tous les salons
+            const response = await roomsService.getAllRooms();
+
+            // Renvoie la réponse avec la liste des salons
+            return res.status(200).json(response);
+        } catch (error) {
+            console.error(error);
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur lors de la récupération des salons', erreur: error });
         }
     }
+};
 
-
-}
-
-module.exports = roomsController
+module.exports = roomsController;

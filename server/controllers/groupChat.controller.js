@@ -1,82 +1,97 @@
-const groupChatService = require('../services/groupChat.service')
-const utilityFunc = require('../services/utilityFunctions.service')
-
+const groupChatService = require('../services/groupChat.service');
+const utilityFunc = require('../services/utilityFunctions.service');
 
 const groupChatController = {
 
-    createGroup : async (req, res) => {
+    // Crée un nouveau groupe
+    createGroup: async (req, res) => {
         try {
-            const { groupName, membersName } = req.body
+            const { groupName, membersName } = req.body;
 
+            // Vérifie si le nom du groupe et les membres sont fournis
             if (!groupName || !membersName) {
                 return res.status(400).json({ message: 'Nom du groupe et membres sont requis' });
             }
 
-            const membersIds = []
+            const membersIds = [];
 
+            // Récupère les identifiants des membres à partir de leurs noms
             for (const memberName of membersName) {
-                const memberId = await utilityFunc.getUserId(memberName)
+                const memberId = await utilityFunc.getUserId(memberName);
                 if (memberId) {
-                    membersIds.push(memberId)
+                    membersIds.push(memberId);
                 } else {
-                    return res.status(404).json({message : `L\'utilisateur ${memberName} n\'a pas été trouvé.`})
+                    // Si un membre n'est pas trouvé, renvoie une erreur 404
+                    return res.status(404).json({ message: `L'utilisateur ${memberName} n'a pas été trouvé.` });
                 }
             }
 
-            const resultGroup = await groupChatService.createGroup(groupName, membersIds)
+            // Crée le groupe avec le nom et les identifiants des membres
+            const resultGroup = await groupChatService.createGroup(groupName, membersIds);
 
-            return res.status(200).json({resultGroup})
+            // Renvoie la réponse avec le groupe créé
+            return res.status(200).json({ resultGroup });
 
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur pendant la création du chats', erreur : error})    
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur pendant la création du chats', erreur: error });
         }
-    }, 
+    },
 
-    getAllUserGroup : async (req, res) => {
+    // Récupère tous les groupes d'un utilisateur
+    getAllUserGroup: async (req, res) => {
         try {
-            const userId = req.payload.userId
+            const userId = req.payload.userId;
 
             console.log(userId);
-            const allUserGroup = await groupChatService.getAllUserGroup(userId)
+            const allUserGroup = await groupChatService.getAllUserGroup(userId);
 
-            
-                return res.status(200).json(allUserGroup)
-            
+            // Renvoie la liste des groupes de l'utilisateur
+            return res.status(200).json(allUserGroup);
 
-            // return res.status(404).json({message : 'Nous n\'avons pas trouvé de discussion associées à votre compte'})
+            // Si aucun groupe n'est trouvé, renvoie une erreur 404 (commenté car non utilisé)
+            // return res.status(404).json({ message: 'Nous n\'avons pas trouvé de discussion associées à votre compte' });
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur pendant la récupération des chats.', erreur : error})
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur pendant la récupération des chats.', erreur: error });
         }
     },
 
-    getGroupMessages : async (req, res) => {
+    // Récupère les messages d'un groupe
+    getGroupMessages: async (req, res) => {
         try {
-            const groupId = req.params.groupId
+            const groupId = req.params.groupId;
 
-            const data =  await groupChatService.getGroupMessages(groupId)
+            // Récupère les messages du groupe spécifié
+            const data = await groupChatService.getGroupMessages(groupId);
 
-            return res.status(200).json(data)
+            // Renvoie les messages du groupe
+            return res.status(200).json(data);
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur lors de la récupération des messages', erreur : error})
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur lors de la récupération des messages', erreur: error });
         }
     },
 
-    postMessage : async (req, res) => {
+    // Envoie un message dans un groupe
+    postMessage: async (req, res) => {
         try {
-            const { content, groupId, sender } = req.body
+            const { content, groupId, sender } = req.body;
 
-            const postMessage = await groupChatService.postMessage({content, groupId, sender})
+            // Poste le message dans le groupe spécifié
+            const postMessage = await groupChatService.postMessage({ content, groupId, sender });
 
-            return res.status(200).json({postMessage})
+            // Renvoie la réponse avec le message posté
+            return res.status(200).json({ postMessage });
         } catch (error) {
             console.error(error);
-            return res.status(500).json({message : 'Erreur lors de l\'envoie du message.', erreur : error})
+            // En cas d'erreur, renvoie une réponse 500 avec le message d'erreur
+            return res.status(500).json({ message: 'Erreur lors de l\'envoie du message.', erreur: error });
         }
     }
+};
 
-}
-
-module.exports = groupChatController
+module.exports = groupChatController;

@@ -1,48 +1,51 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
-import AuthNav from '../../components/AuthNav';
-import { Link } from "react-router-dom";
-import add from '../../assets/add.svg';
-import styles from '../../css_module/Messages.module.css'
+import axios from 'axios'; // Importation du module Axios pour les requêtes HTTP
+import AuthNav from '../../components/AuthNav'; // Composant de navigation pour les utilisateurs authentifiés
+import { Link } from "react-router-dom"; // Composant de lien pour la navigation interne
+import add from '../../assets/add.svg'; // Importation de l'icône pour ajouter un nouveau salon
+import styles from '../../css_module/Messages.module.css'; // Importation des styles CSS pour le composant
 
 const AllRooms = () => {
-    const [rooms, setRooms] = useState([]);
-    const [error, setError] = useState(null);
+    const [rooms, setRooms] = useState([]); // État local pour stocker la liste des salons
+    const [error, setError] = useState(null); // État local pour gérer les erreurs
 
     useEffect(() => {
         const getRooms = async () => {
             try {
                 const response = await axios.get('http://localhost:3000/api/eunoia/rooms', {
-                    withCredentials: true
+                    withCredentials: true // Utilisation des credentials pour les requêtes avec axios
                 });
 
-                console.log(response.data);
+                console.log(response.data); // Affichage des données de réponse dans la console
 
-                setRooms(response.data.filter((room) => room.name !== 'Eunoia')); 
+                setRooms(response.data.filter((room) => room.name !== 'Eunoia')); // Mise à jour de l'état avec les salons reçus, en excluant le salon 'Eunoia'
             } catch (error) {
-                console.error("Error fetching rooms:", error);
-                setError(error.response ? error.response.data.message : error.message);
+                console.error("Error fetching rooms:", error); // Affichage des erreurs de requête dans la console
+                setError(error.response ? error.response.data.message : error.message); // Gestion des erreurs
             }
         };
-        getRooms();
-    }, []); // Tableau de dépendances vide pour ne pas exécuter le useEffect en boucle
+        getRooms(); // Appel de la fonction pour récupérer les salons au montage du composant
+    }, []); // Utilisation d'un tableau de dépendances vide pour exécuter useEffect une seule fois
 
-        const joinRoom = async (roomId) => {
-        if (window.confirm("Voulez-vous vraiment rejoindre ce salon ?")) {
+    // Fonction pour rejoindre un salon
+    const joinRoom = async (roomId) => {
+        if (window.confirm("Voulez-vous vraiment rejoindre ce salon ?")) { // Confirmation avant de rejoindre le salon
             try {
                 const response = await axios.post('http://localhost:3000/api/eunoia/rooms', {
                     roomId: roomId
                 }, {
-                    withCredentials: true
+                    withCredentials: true // Utilisation des credentials pour les requêtes avec axios
                 });
 
-                alert("Vous avez rejoint le salon !");
+                alert("Vous avez rejoint le salon !"); // Message d'alerte après avoir rejoint le salon
             } catch (error) {
-                console.error("Error joining room:", error);
-                setError(error.response ? error.response.data.message : error.message);
+                console.error("Error joining room:", error); // Affichage des erreurs de requête dans la console
+                setError(error.response ? error.response.data.message : error.message); // Gestion des erreurs
             }
         }
     };
+
+    // Rendu JSX du composant AllRooms
 
     return (
         <>

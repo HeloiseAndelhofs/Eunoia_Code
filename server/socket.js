@@ -4,6 +4,7 @@ const roomsService = require('./services/rooms.service');
 const utilityFuncService = require('./services/utilityFunctions.service');
 
 const configureSocketIo = (server) => {
+    // Configurer socket.io avec les options CORS
     const io = socketIo(server, {
         cors: {
             origin: 'http://localhost:5173',
@@ -13,11 +14,12 @@ const configureSocketIo = (server) => {
 
     const users = {};
 
+    //sur la connection
     io.on('connection', (socket) => {
         console.log(`${socket.id} connecté`);
         socket.emit('connection');
 
-        // group chat !!
+        // Gestion du chat de groupe
         socket.on('joinGroup', (groupName) => {
             socket.join(groupName);
             socket.emit('joinGroup');
@@ -26,20 +28,22 @@ const configureSocketIo = (server) => {
 
         socket.on('leaveGroup', (groupName) => {
             socket.leave(groupName);
-            console.log(`${socket.id} left group ${groupName}`);
+            console.log(`${socket.id} a quitté le groupe ${groupName}`);
         });
 
         socket.on('privateMessage', async (message) => {
             const { content, groupName, sender, groupId } = message;
 
-            // Enregistrer le message dans la base de données
             try {
+                // Enregistrer le message dans la base de données
                 const savedMessage = await groupChatService.postMessage({ content, groupId, sender });
                 console.log(`Saved message: ${savedMessage.content}`);
 
-                const user = await utilityFuncService.selectUserById(sender)
-                const username = user.username
-          
+                // Récupérer le nom d'utilisateur de l'expéditeur
+                const user = await utilityFuncService.selectUserById(sender);
+                const username = user.username;
+
+                //renvoyer tous ensemble
                 const formattedMessage = {
                     private_message_id: savedMessage.private_message_id,
                     content: savedMessage.content,
@@ -52,28 +56,29 @@ const configureSocketIo = (server) => {
                 console.log(`${formattedMessage} a été envoyé au groupe ${groupName}`);
                 console.log(formattedMessage);
 
-                io.to(groupName).emit('receivePrivateMessage', formattedMessage)
+                // Émettre le message formaté à tous les membres du groupe
+                io.to(groupName).emit('receivePrivateMessage', formattedMessage);
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message privé:', error);
             }
         });
 
-        //fin group chat !!
-
-        //rooms
+        // Gestion des rooms
         socket.on('joinRoom', (roomName) => {
-            socket.join(roomName)
-            //socket.emmit('connection')
-        })
+            socket.join(roomName);
+            console.log(`${socket.id} a rejoint la room ${roomName}`);
+        });
 
         socket.on('publicMessage', async (message) => {
             const { content, sender, roomId, roomName } = message;
 
             try {
-                const savedMessage = await roomsService.sendMessageToRoom( content, roomId, sender );
+                // Enregistrer le message dans la base de données
+                const savedMessage = await roomsService.sendMessageToRoom(content, roomId, sender);
 
-                const user = await utilityFuncService.selectUserById(sender)
-                const username = user.username
+                // Récupérer le nom d'utilisateur de l'expéditeur
+                const user = await utilityFuncService.selectUserById(sender);
+                const username = user.username;
 
                 const result = {
                     public_message_id: savedMessage.public_message_id,
@@ -82,14 +87,17 @@ const configureSocketIo = (server) => {
                     room_id: savedMessage.room_id,
                     user_id: savedMessage.user_id,
                     username: username
-                }
-                io.to(roomName).emit('publicMessage', result)
+                };
+
+                // Émettre le message formaté à tous les membres de la room
+                io.to(roomName).emit('publicMessage', result);
                 console.log(result);
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement du message public:', error);
             }
-        })
+        });
 
+        // Gestion de la déconnexion
         socket.on('logout', () => {
             console.log(`${socket.id} déconnecté`);
             socket.emit('logout');

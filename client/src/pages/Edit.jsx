@@ -1,44 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import AuthNav from "../components/AuthNav.jsx";
-import styles from '../css_module/UpdateProfile.module.css';
-import deleteImg from '../assets/trash.svg'
+import AuthNav from "../components/AuthNav.jsx"; // Composant de navigation pour les utilisateurs authentifiés
+import styles from '../css_module/UpdateProfile.module.css'; // Styles CSS pour le composant
+import deleteImg from '../assets/trash.svg'; // Icône pour supprimer une préférence
 
 const Edit = () => {
-    // const [profileData, setProfileData] = useState(null)
+    // État local pour les données du formulaire
     const [formData, setFormData] = useState({
         username: '',
         description: '',
         preferences: []
     });
-    // const [formData, setFormData] = useState(null)
 
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
+    const [error, setError] = useState(null); // État local pour gérer les erreurs
+    const navigate = useNavigate(); // Hook de navigation
 
+    // Effet de chargement initial pour récupérer les données du profil depuis l'API
     useEffect(() => {
         const getProfileData = async () => {
             try {
                 const result = await axios.get('http://localhost:3000/api/eunoia/profile', {
-                    withCredentials: true
+                    withCredentials: true // Utilisation des cookies avec les requêtes Axios
                 });
 
+                // Mise à jour de l'état avec les données récupérées
                 setFormData({
                     username : result.data.user.username,
                     description : result.data.user.description,
                     preferences : result.data.preferences
                 });
-                // console.log('PROFILE DATA :' + formData);
 
             } catch (error) {
                 console.error(error);
-                setError(error.response ? error.response.data.message : error.message);
+                setError(error.response ? error.response.data.message : error.message); // Gestion des erreurs
             }
         };
-        getProfileData();
+        getProfileData(); // Appel de la fonction pour récupérer les données du profil lors du montage du composant
     }, []);
 
+    // Fonction pour gérer les changements dans les champs du formulaire
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         if (type === 'checkbox') {
@@ -54,6 +55,7 @@ const Edit = () => {
         }
     };
 
+    // Fonction pour gérer les changements dans les préférences
     const handlePreferenceChange = (index, field, value) => {
         const newPreferences = [...formData.preferences];
         newPreferences[index] = {
@@ -66,6 +68,7 @@ const Edit = () => {
         });
     };
 
+    // Fonction pour ajouter une nouvelle préférence
     const handleAddPreference = () => {
         setFormData({
             ...formData,
@@ -73,6 +76,7 @@ const Edit = () => {
         });
     };
 
+    // Fonction pour supprimer une préférence
     const handleRemovePref = (index) => {
         const updatedPrefs = [...formData.preferences];
         updatedPrefs.splice(index, 1);
@@ -82,27 +86,33 @@ const Edit = () => {
         });
     };
 
+    // Fonction pour soumettre les modifications du profil
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Envoi des données mises à jour vers l'API pour modification du profil
             await axios.put('http://localhost:3000/api/eunoia/profile/edit', formData, {
-                withCredentials: true
+                withCredentials: true // Utilisation des cookies avec les requêtes Axios
             });
 
-            navigate('/eunoia/profile');
+            navigate('/eunoia/profile'); // Redirection vers la page de profil après la mise à jour
+
         } catch (error) {
             console.error(error);
-            setError(error.response ? error.response.data.message : error.message);
+            setError(error.response ? error.response.data.message : error.message); // Gestion des erreurs
         }
     };
 
+    // Affichage du message d'erreur s'il y en a
     if (error) {
         return <p className={styles.errorMessage}>Erreur : {error}</p>;
     }
 
+    // Rendu JSX du composant
     return (
         <>
-            <AuthNav />
+            <AuthNav /> {/* Composant de navigation pour les utilisateurs authentifiés */}
+
             <div className={styles.updateProfileContainer}>
                 <h1>Mettre à jour votre profil</h1>
                 <form onSubmit={handleSubmit}>
@@ -125,6 +135,7 @@ const Edit = () => {
                     </div>
                     <div className={styles.formGroup}>
                         <label>Préférences</label>
+                        {/* Affichage des préférences sous forme de champs de formulaire */}
                         {formData.preferences && formData.preferences.map((pref, index) => (
                             <div key={index}>
                                 <input
@@ -146,7 +157,7 @@ const Edit = () => {
                                         checked={pref.is_liked}
                                         onChange={(e) => handlePreferenceChange(index, 'is_liked', e.target.checked)}
                                     />
-                                    Est ce que vous appréciez jouer/écouter au jeu/musique que vous venez de mentionner ?
+                                    Est-ce que vous appréciez jouer/écouter au jeu/musique que vous venez de mentionner ?
                                 </label>
 
                                 <button type="button" onClick={(e) => handleRemovePref(index)}><img src={deleteImg} alt="delete" /></button>

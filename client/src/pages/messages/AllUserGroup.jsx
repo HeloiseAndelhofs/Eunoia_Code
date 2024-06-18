@@ -42,6 +42,7 @@ const AllUsersGroup = () => {
             </div>
             
             {groups.length > 0 ? (
+                // verification si il y a des groupes à afficher
                 <ul>
                     {groups.map((group) => (
                         <li key={group.group_chat_id}>

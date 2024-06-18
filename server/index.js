@@ -9,8 +9,10 @@ const { PORT } = process.env
 const app = express();
 const server = http.createServer(app);
 
+//pour les evenements sockets
 configureSocketIo(server);
 
+//configuration pour accepter les req du client et passer les cookies
 app.use(cors({
     origin: 'http://localhost:5173', 
     credentials: true, 
