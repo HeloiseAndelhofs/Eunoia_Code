@@ -1,7 +1,9 @@
 import React from "react";
+import styles from '../css_module/LoginRegister.module.css'
+
 
 const Step1Form = ({ formData, handleChange, handleSubmit }) => (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className={styles._form}>
         <div className="register_form">
             <label htmlFor="username">Nom d'utilisateur</label>
             <input name="username" type="text" value={formData.username} onChange={handleChange} required />

@@ -4,6 +4,7 @@ import axios from "axios";
 import NoAuthNav from "../components/NoAuthNav";
 import { useAuth } from '../AuthContext'; // Importation du hook useAuth depuis le contexte d'authentification
 import socket from '../socket'; // Importation du socket pour la connexion en temps réel
+import styles from '../css_module/LoginRegister.module.css'
 
 const Login = () => {
     const { login } = useAuth(); // Utilisation du hook useAuth pour accéder à la fonction login du contexte
@@ -70,19 +71,19 @@ const Login = () => {
         <>
             <NoAuthNav /> {/* Composant de navigation pour les utilisateurs non connectés */}
 
-            <h1>Connexion</h1>
+            <h1 className={styles._title}>Connexion</h1>
 
             {/* Formulaire de connexion */}
-            <form onSubmit={handleSubmit}>
-                <div className="login_form">
+            <form onSubmit={handleSubmit} className={styles._form}>
+                <div >
                     <label htmlFor="username">Nom d'utilisateur</label>
                     <input name="username" type="text" value={formData.username} onChange={handleChange} />
                 </div>
-                <div className="login_form">
+                <div>
                     <label htmlFor="password">Mot de passe</label>
                     <input name="password" type="password" value={formData.password} onChange={handleChange} />
                 </div>
-                <div className="login_form">
+                <div>
                     <label htmlFor="tokenAccepted">J'accepte les cookies</label>
                     <input type="checkbox" name="tokenAccepted" checked={formData.tokenAccepted} onChange={handleChange} />
                 </div>

@@ -1,8 +1,10 @@
 import React from "react";
+import styles from '../css_module/LoginRegister.module.css'
+
 
 const Step2Form = ({ formData, handleChange, handlePreferencesChange, handleAddPreference, handleSubmit }) => (
     <form onSubmit={handleSubmit}>
-        <div className="register_form">
+        <div className={styles._form}>
             <label htmlFor="description">Description</label>
             <textarea name="description" value={formData.description} onChange={handleChange} />
         </div>

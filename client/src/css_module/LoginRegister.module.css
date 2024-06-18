@@ -1,0 +1,62 @@
+/* .module.css */
+
+._container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+._title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+._form {
+    margin-bottom: 15px;
+}
+
+._form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+._form input[type="text"],
+._form input[type="password"],
+._form input[type="checkbox"],
+._form input[type="email"],
+._form input[type = "date"]{
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+._form input[type="checkbox"] {
+    width: auto;
+    margin-top: 8px;
+}
+
+._form button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+._form button:hover {
+    background-color: #0056b3;
+}
